@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6970a7e24213b51c44ff0e4b851ae05c",
+    "content-hash": "c33b47c3430946096a83eb3d9a096e60",
     "packages": [
         {
             "name": "keboola/csv",
@@ -886,17 +886,65 @@
             "time": "2017-07-22T11:58:36+00:00"
         },
         {
-            "name": "keboola/coding-standard",
-            "version": "4.0.0",
+            "name": "jakub-onderka/php-parallel-lint",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/keboola/phpcs-standard.git",
-                "reference": "17b1820b408cfbeed4498c2c5b5c7a456bebe850"
+                "url": "https://github.com/JakubOnderka/PHP-Parallel-Lint.git",
+                "reference": "04fbd3f5fb1c83f08724aa58a23db90bd9086ee8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/phpcs-standard/zipball/17b1820b408cfbeed4498c2c5b5c7a456bebe850",
-                "reference": "17b1820b408cfbeed4498c2c5b5c7a456bebe850",
+                "url": "https://api.github.com/repos/JakubOnderka/PHP-Parallel-Lint/zipball/04fbd3f5fb1c83f08724aa58a23db90bd9086ee8",
+                "reference": "04fbd3f5fb1c83f08724aa58a23db90bd9086ee8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "jakub-onderka/php-console-highlighter": "~0.3",
+                "nette/tester": "~1.3",
+                "squizlabs/php_codesniffer": "~2.7"
+            },
+            "suggest": {
+                "jakub-onderka/php-console-highlighter": "Highlight syntax in code snippet"
+            },
+            "bin": [
+                "parallel-lint"
+            ],
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Jakub Onderka",
+                    "email": "ahoj@jakubonderka.cz"
+                }
+            ],
+            "description": "This tool check syntax of PHP files about 20x faster than serial check.",
+            "homepage": "https://github.com/JakubOnderka/PHP-Parallel-Lint",
+            "time": "2018-02-24T15:31:20+00:00"
+        },
+        {
+            "name": "keboola/coding-standard",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/phpcs-standard.git",
+                "reference": "5cb926bca290c29109aa8aab966b36c2325bcfd7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/phpcs-standard/zipball/5cb926bca290c29109aa8aab966b36c2325bcfd7",
+                "reference": "5cb926bca290c29109aa8aab966b36c2325bcfd7",
                 "shasum": ""
             },
             "require": {
@@ -909,7 +957,7 @@
                 "MIT"
             ],
             "description": "Keboola coding standard",
-            "time": "2018-05-15T15:09:36+00:00"
+            "time": "2018-03-26T08:50:33+00:00"
         },
         {
             "name": "keboola/datadir-tests",

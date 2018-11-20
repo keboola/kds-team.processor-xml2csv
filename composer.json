@@ -20,10 +20,13 @@
         "keboola/csvmap": "^0.5"
     },
     "require-dev": {
-        "keboola/coding-standard": "^4.0",
+        "jakub-onderka/php-parallel-lint": "^1.0",
+        "keboola/coding-standard": "^1.0",
         "keboola/php-temp": "^1.0",
         "phpstan/phpstan-shim": "^0.9.2",
         "phpunit/phpunit": "^7.0",
+        "slevomat/coding-standard": "4.4.6",
+        "squizlabs/php_codesniffer": "~3.2",
         "symfony/process": "^4.0",
         "keboola/datadir-tests": "^1.0"
     },

@@ -28,7 +28,7 @@ class JsonToCSvParser {
         $this->logger = $logger;
         $this->type = $type;
         if ($mapping) {
-            $this->parser = new Mapper($mapping,$type);
+            $this->parser = new Mapper($mapping, $type);
         } else {
             $this->parser = new Parser(new Analyzer($logger, new Structure(), true));
         }
@@ -38,7 +38,7 @@ class JsonToCSvParser {
         $type = $this->getType($json_data);
         if (!is_array($json_data)) {
             $json_data = [$json_data];
-        } 
+        }
         if ($this->parser instanceof Mapper) {
             $this->parser->parse($json_data);
         } else {
@@ -46,8 +46,8 @@ class JsonToCSvParser {
         }
     }
 
-    public function getCsvFiles(){
-        
+    public function getCsvFiles() {
+
         return $this->parser->getCsvFiles();
     }
 
@@ -59,6 +59,5 @@ class JsonToCSvParser {
     public function getResult() {
         return $this->parser->getCsvFiles();
     }
-
 
 }

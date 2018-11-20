@@ -124,14 +124,15 @@ class XML2JsonConverter {
     }
 
     private function convertToArray($value, $parentName, $addRowNr) {
-        if ($addRowNr){
+        if ($addRowNr) {
             $newArr = $this->addRowNumber($value, $parentName, 1);
-        } else{
+        } else {
             $newArr = array($value);
         }
 
         return $newArr;
     }
+
     private function addRowNumber($data, $parentName, $rowNr) {
         $newArr = [];
         if (is_array($data)) {

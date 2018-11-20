@@ -27,7 +27,7 @@ class Processor {
 
     public function stampNames(string $datadir, string $type): self {
         return $this->processFiles(
-                        sprintf("%s/in/".$type.'/', $datadir), sprintf("%s/out/tables/", $datadir)
+                        sprintf("%s/in/" . $type . '/', $datadir), sprintf("%s/out/tables/", $datadir)
         );
     }
 
@@ -47,7 +47,7 @@ class Processor {
             // get root if specified
             $json_result_root = $this->getRoot(json_decode($json_result_txt));
             $this->jsonParser->parse($json_result_root);
-            
+
             //file_put_contents($outputDir . $file->getFileName() . '.json', $json_result_root);
         }
         $csv_files = $this->jsonParser->getCsvFiles();
@@ -56,19 +56,19 @@ class Processor {
     }
 
     private function getRoot($json) {
-        
+
         if ($this->root_el != NULL) {
             $nodes = explode('.', $this->root_el);
             $root = $json;
-            foreach ($nodes as $node){
+            foreach ($nodes as $node) {
                 $root = $root->{$node};
             }
             return $root;
-        } else{
+        } else {
             return $json;
         }
-        
     }
+
     private function getManifests($inputDir) {
         $finderManifests = new Finder();
         $manifests = [];
@@ -119,6 +119,5 @@ class Processor {
             copy($file->getPathname(), $path . $resFileName . '.csv');
         }
     }
-
 
 }

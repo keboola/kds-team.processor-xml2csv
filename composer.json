@@ -4,6 +4,11 @@
             "esnerda\\XML2CsvProcessor\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "esnerda\\XML2CsvProcessor\\Tests\\": "tests/phpunit/"
+        }
+    },
     "name": "esnerda/XML2CsvProcessor",
     "require": {
         "PHP": "^7.1",
@@ -22,5 +27,27 @@
     "config": {
         "sort-packages": true,
         "optimize-autoloader": true
+    },
+    "scripts": {
+        "tests-phpunit": "phpunit",
+        "tests-datadir": "datadir-tests",
+        "tests": [
+            "@tests-phpunit",
+            "@tests-datadir"
+        ],
+
+        "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
+        "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
+        "phplint": "parallel-lint -j 10 --exclude vendor .",
+        "build": [
+            "@phplint",
+            "@phpcs",
+            "@phpstan",
+            "@tests"
+        ],
+        "ci": [
+            "@composer validate --no-check-all --strict",
+            "@build"
+        ]
     }
 }

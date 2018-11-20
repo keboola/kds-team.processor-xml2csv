@@ -9,13 +9,13 @@ use esnerda\XML2CsvProcessor\Component;
 require __DIR__ . '/../vendor/autoload.php';
 
 $logger = new Logger();
-$logger->log("ERROR", 'test');
 try {
     if (count($argv) > 1) {
         putenv("KBC_DATADIR=$argv[1]");
     }
     $app = new Component($logger);
     $app->run();
+    $logger->info("Conversion finished..");
     exit(0);
 } catch (UserException $e) {
     $logger->error($e->getMessage());

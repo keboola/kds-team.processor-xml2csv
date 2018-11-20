@@ -17,12 +17,16 @@ class Processor {
     private $add_row_nr;
     private $forceArrayAttrs;
 
-    public function __construct($jsonParser, bool $add_row_nr, $forceArrayAttrs, bool $incremental, string $root_el) {
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct($jsonParser, bool $add_row_nr, $forceArrayAttrs, bool $incremental, string $root_el, $logger) {
         $this->jsonParser = $jsonParser;
         $this->add_row_nr = $add_row_nr;
         $this->forceArrayAttrs = $forceArrayAttrs;
         $this->incremental = $incremental;
         $this->root_el = $root_el;
+        $this->logger = $logger;
     }
 
     public function stampNames(string $datadir, string $type): self {
@@ -41,6 +45,7 @@ class Processor {
         $manifests = $this->getManifests($inputDir);
 
         foreach ($finderFiles as $file) {
+            $this->logger->info("Parsing file " . $file->getFileName());
 
             $xml_string = file_get_contents($file->getRealPath());
             $json_result_txt = $xml_parser->xml2json($xml_string, $this->add_row_nr, $this->forceArrayAttrs);
@@ -50,6 +55,7 @@ class Processor {
 
             //file_put_contents($outputDir . $file->getFileName() . '.json', $json_result_root);
         }
+        $this->logger->info("Writting results..");
         $csv_files = $this->jsonParser->getCsvFiles();
         $this->storeResults($outputDir, $csv_files, $this->incremental);
         return $this;
@@ -115,6 +121,7 @@ class Processor {
             if (!empty($file->getPrimaryKey())) {
                 $manifest['primary_key'] = $file->getPrimaryKey(true);
             }
+            $this->logger->info("Writting reult file: " . $resFileName . '.csv');
             file_put_contents($path . $resFileName . '.manifest', json_encode($manifest));
             copy($file->getPathname(), $path . $resFileName . '.csv');
         }

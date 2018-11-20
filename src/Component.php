@@ -17,7 +17,11 @@ class Component extends BaseComponent {
         $jsonParser = new JsonToCSvParser($this->getConfig()->getMapping(), $this->getLogger(), $type);
 
         $processor = new Processor(
-                $jsonParser, $this->getConfig()->getAppendRowNr(), $this->getConfig()->getForceArrayAttributes(), $this->getConfig()->isIncremental(), $this->getConfig()->getRootNode()
+                $jsonParser, $this->getConfig()->getAppendRowNr(), 
+                $this->getConfig()->getForceArrayAttributes(), 
+                $this->getConfig()->isIncremental(), 
+                $this->getConfig()->getRootNode(),
+                $this->getLogger()
         );
 
 

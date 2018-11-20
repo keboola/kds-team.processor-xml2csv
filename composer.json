@@ -1,7 +1,7 @@
 {
     "autoload": {
         "psr-4": {
-            "esnerda\\XML2CsvProcessor\\": "src"
+            "esnerda\\XML2CsvProcessor\\": "src/"
         }
     },
     "autoload-dev": {
@@ -9,7 +9,10 @@
             "esnerda\\XML2CsvProcessor\\Tests\\": "tests/phpunit/"
         }
     },
-    "name": "esnerda/XML2CsvProcessor",
+    "name": "esnerda/xml2csvprocessor",
+    "license": "MIT",
+    "description": "Convert XML files to CSV",
+    "type": "project",
     "require": {
         "PHP": "^7.1",
         "keboola/php-component": "^4.1",

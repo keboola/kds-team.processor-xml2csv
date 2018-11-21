@@ -7,6 +7,7 @@ Keboola Connection processor for XML to CSV conversion.
 Converts XML files to JSON and then to CSV. 
 
 **Credits:**
+
 - For XML2JSON conversion uses modified version of function published in [outlandish.com blogpost](https://outlandish.com/blog/tutorial/xml-to-json/)
 - For JSON2CSV conversion uses Keboola developed [Json parser](https://github.com/keboola/php-jsonparser) and [CsvMap](https://github.com/keboola/php-csvmap) for analysis and automatic conversion from JSON to CSV. Supports Generic Ex -like mapping configuration.
 # Usage

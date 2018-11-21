@@ -122,7 +122,7 @@ class Processor {
             if (!empty($file->getPrimaryKey())) {
                 $manifest['primary_key'] = $file->getPrimaryKey(true);
             }
-            $this->logger->info("Writting reult file: " . $resFileName . '.csv');
+            $this->logger->info("Writting reult file: " . $resFileName);
             file_put_contents($path . $resFileName . '.manifest', json_encode($manifest));
             copy($file->getPathname(), $path . $resFileName);
         }

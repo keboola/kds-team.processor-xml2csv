@@ -1,4 +1,5 @@
 
+
 # XML2CSV processor
 Keboola Connection processor for XML to CSV conversion.
 
@@ -9,16 +10,8 @@ Converts XML files to JSON and then to CSV.
 - For XML2JSON conversion uses modified version of function published in [outlandish.com blogpost](https://outlandish.com/blog/tutorial/xml-to-json/)
 - For JSON2CSV conversion uses Keboola developed [Json parser](https://github.com/keboola/php-jsonparser) and [CsvMap](https://github.com/keboola/php-csvmap) for analysis and automatic conversion from JSON to CSV. Supports Generic Ex -like mapping configuration.
 # Usage
-The processor takes three options:
-
-- `source_encoding` - required string, [encoding](https://gist.github.com/hakre/4188459) of the source files/tables, must be same for all files/tables
-- `target_encoding` - optional string, [encoding](https://gist.github.com/hakre/4188459) of the target files/tables, defaults to `UTF-8`
-- `on_error` - optional string, can be either `transliterate` or `ignore` or `fail`, defines the action to do when a character cannot be converted. The default value is `fail`, which means that the conversion will fail.
 
 ## Examples
-
-### Advanced Example 1 - nested arrays, with mapping
-
 #### XML example #1
 ```xml
 <?xml version='1.0' ?>
@@ -49,14 +42,101 @@ The processor takes three options:
     </orders>
 </root_el>
 ```
-#### Configuration #1
+### Simple Example
 
-```
+#### XML simple example #1
+Assuming XML file in `/in/files/`.
+#### Configuration
+```json
 {
     "definition": {
-        "component": "keboola.processor-iconv"
+        "component": "kds-team.processor-xml2csv"
     },
-    {
+    "parameters" : {
+	"mapping" : {},		
+	"append_row_nr" : true,
+	"always_array" : ["order-item"],
+	"incremental":true,
+	"root_node" : "",
+    "in_type": "files"
+	}
+}
+```
+#### Intermediate converted JSON #1
+```json
+{
+	"root_el": {
+		"orders": {
+			"order": [{
+					"id": "1",
+					"date": "2018-01-01",
+					"cust_name": "David",
+					"order-item": [{
+							"price": {
+								"xml_attr_currency": "CZK",
+								"txt_content_": "100"
+							},
+							"item": "Umbrella",
+							"row_nr": 1
+						}, {
+							"price": {
+								"xml_attr_currency": "CZK",
+								"txt_content_": "200"
+							},
+							"item": "Rain Coat",
+							"row_nr": 2
+						}
+					],
+					"row_nr": 1
+				}, {
+					"id": "2",
+					"date": "2018-07-02",
+					"cust_name": "Tom",
+					"order-item": {
+						"price": {
+							"xml_attr_currency": "GBP",
+							"txt_content_": "100"
+						},
+						"item": "Sun Screen",
+						"row_nr": 1
+					},
+					"row_nr": 2
+				}
+			]
+		}
+	}
+}
+
+```
+The above produces two tables  according to mapping setting `order.csv`:
+```csv
+"root_el_orders_order"
+"root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f"
+```
+`root_el_root_el_orders_order.csv`:
+```csv
+"id","date","cust_name","order-item","row_nr","JSON_parentId"
+"1","2018-01-01","David","root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6","1","root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f"
+"2","2018-07-02","Tom","root_el.root_el.orders.order_929b76dfdf2f8fd8857980899bf9ba26","2","root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f"
+```
+and `root_el_root_el_orders_order_order-item.csv`
+```csv
+"price_xml_attr_currency","price_txt_content","item","row_nr","JSON_parentId"
+"CZK","100","Umbrella","1","root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6"
+"CZK","200","Rain Coat","2","root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6"
+"GBP","100","Sun Screen","1","root_el.root_el.orders.order_929b76dfdf2f8fd8857980899bf9ba26"
+```
+
+
+### Advanced Example 1 - nested arrays, with mapping
+Assuming XML file in `/in/files/`.
+#### Configuration
+```json
+{
+    "definition": {
+        "component": "kds-team.processor-xml2csv"
+    },
+    "parameters" : {
 	"mapping" : {
 			"id": {
 				"type": "column",
@@ -112,12 +192,12 @@ The processor takes three options:
 						}
 					}
 				}
-			}},
-		
+			}},		
 	"append_row_nr" : true,
 	"always_array" : ["order-item"],
 	"incremental":true,
-	"root_node" : "root_el.orders.order"
+	"root_node" : "root_el.orders.order",
+    "in_type": "files"
 	}
 }
 ```

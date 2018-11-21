@@ -30,6 +30,7 @@ class Processor {
     }
 
     public function stampNames(string $datadir, string $type): self {
+
         return $this->processFiles(
                         sprintf("%s/in/" . $type . '/', $datadir), sprintf("%s/out/tables/", $datadir)
         );
@@ -53,7 +54,7 @@ class Processor {
             $json_result_root = $this->getRoot(json_decode($json_result_txt));
             $this->jsonParser->parse($json_result_root);
 
-            //file_put_contents($outputDir . $file->getFileName() . '.json', $json_result_root);
+            //file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
         }
         $this->logger->info("Writting results..");
         $csv_files = $this->jsonParser->getCsvFiles();
@@ -112,7 +113,7 @@ class Processor {
                 chgrp($path, filegroup($outdir));
             }
 
-            $resFileName = $key;
+            $resFileName = $key . '.csv';
             $manifest = [];
             if (!is_null($bucketName)) {
                 $manifest['destination'] = "{$bucketName}.{$key}";
@@ -123,7 +124,7 @@ class Processor {
             }
             $this->logger->info("Writting reult file: " . $resFileName . '.csv');
             file_put_contents($path . $resFileName . '.manifest', json_encode($manifest));
-            copy($file->getPathname(), $path . $resFileName . '.csv');
+            copy($file->getPathname(), $path . $resFileName);
         }
     }
 

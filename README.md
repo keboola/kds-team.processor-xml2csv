@@ -135,6 +135,7 @@ Assuming XML file in `/in/files/`.
 
 ```
 The above produces two tables  according to mapping setting `order.csv`:
+
 | root_el_orders_order |
 |--|
 | root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f |
@@ -146,7 +147,8 @@ The above produces two tables  according to mapping setting `order.csv`:
 "1","2018-01-01","David","root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6","1","root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f"
 "2","2018-07-02","Tom","root_el.root_el.orders.order_929b76dfdf2f8fd8857980899bf9ba26","2","root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f"
 ```
-and `root_el_root_el_orders_order_order-item.csv`
+and `root_el_root_el_orders_order_order-item.csv`:
+
 | price_xml_attr_currency | price_txt_content | item | row_nr| JSON_parentId
 |--|--|--|--|--|
 | CZK | 100| Umbrella |1|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
@@ -271,11 +273,14 @@ Assuming XML file in `/in/files/`.
 ```
 
 The above produces two tables  according to mapping setting `order.csv`:
+
 | order_id | order_date | customer_name |
 |--|--|--|
 | 1 |  2018-01-01| David |
 | 2 |  2018-01-02|  Tom|
+
 and `order-items.csv`:
+
 | row_nr | currency | price_value | item_name| order_id
 |--|--|--|--|--|
 | 1 | CZK| 100 |Umbrella|1

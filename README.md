@@ -149,7 +149,7 @@ and `root_el_root_el_orders_order_order-item.csv`:
 | CZK | 200| Rain Coat|2|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
 | GBP | 100| Sun Screen|1|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
 
-```
+
 
 
 ### Advanced Example 1 - nested arrays, with mapping

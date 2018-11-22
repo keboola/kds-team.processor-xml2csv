@@ -1,5 +1,6 @@
 
 
+
 # XML2CSV processor
 Keboola Connection processor for XML to CSV conversion.
 
@@ -11,6 +12,13 @@ Converts XML files to JSON and then to CSV.
 - For XML2JSON conversion uses modified version of function published in [outlandish.com blogpost](https://outlandish.com/blog/tutorial/xml-to-json/)
 - For JSON2CSV conversion uses Keboola developed [Json parser](https://github.com/keboola/php-jsonparser) and [CsvMap](https://github.com/keboola/php-csvmap) for analysis and automatic conversion from JSON to CSV. Supports Generic Ex -like mapping configuration.
 # Usage
+## Configuration parameters
+
+- **in_type** (enum [`files`,`tables`]) -  specifies the input folder where to look for input data. e.g. when set to `table` the processor will look for inpu in `/in/tables/` folder.
+- **incremental** (bool) - flag whether the resulting tables should be uploaded incrementally. Makes most sense with mapping setup, since it allows you to specify primary keys.
+- **always_array** (array) - array of tag names that should be always converted to (JSON) array. This is helpful when you know that some of the tags can occur multiple times. For instance `<OrderItem>` tag could probably  have multiple occurrences. If the XML contains only single one it would be treated as an `Object`, including `["OrderItem"]` as a value  of this parameter will ensure it is always an Array.
+- **append_row_nr** (bool) - Use `true` if you want to generate `row_nr` for each object in each Array. This is usefull when you need to setup primary key of child object that has only reference to parent id and not any unique value in parent or global context. Then you would set the PK as [`parent_key`,`row_nr`]
+- **root_node** (string) - `.` separated path to the root node of the resulting JSON - usually you only want to map the root array, not all the wrapper tags. For more info see examples below.
 
 ## Examples
 #### XML example #1
@@ -110,9 +118,10 @@ Assuming XML file in `/in/files/`.
 
 ```
 The above produces two tables  according to mapping setting `order.csv`:
-```csv
-"root_el_orders_order"
-"root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f"
+| root_el_orders_order |
+|--|
+| root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f |
+
 ```
 `root_el_root_el_orders_order.csv`:
 ```csv
@@ -121,11 +130,12 @@ The above produces two tables  according to mapping setting `order.csv`:
 "2","2018-07-02","Tom","root_el.root_el.orders.order_929b76dfdf2f8fd8857980899bf9ba26","2","root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f"
 ```
 and `root_el_root_el_orders_order_order-item.csv`
-```csv
-"price_xml_attr_currency","price_txt_content","item","row_nr","JSON_parentId"
-"CZK","100","Umbrella","1","root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6"
-"CZK","200","Rain Coat","2","root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6"
-"GBP","100","Sun Screen","1","root_el.root_el.orders.order_929b76dfdf2f8fd8857980899bf9ba26"
+| price_xml_attr_currency | price_txt_content | item | row_nr| JSON_parentId
+|--|--|--|--|--|
+| CZK | 100| Umbrella |1|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
+| CZK | 200| Rain Coat|2|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
+| GBP | 100| Sun Screen|1|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
+
 ```
 
 
@@ -244,18 +254,19 @@ Assuming XML file in `/in/files/`.
 ```
 
 The above produces two tables  according to mapping setting `order.csv`:
-```csv
-"order_id","order_date","customer_name"
-"1","2018-01-01","David"
-"2","2018-07-02","Tom"
-```
+| order_id | order_date | customer_name |
+|--|--|--|
+| 1 |  2018-01-01| David |
+| 2 |  2018-01-02|  Tom|
 and `order-items.csv`:
-```csv
-"row_nr","currency","price_value","item_name","order_id"
-"1","CZK","100","Umbrella","1"
-"2","CZK","200","Rain Coat","1"
-"1","GBP","100","Sun Screen","2"
-```
+| row_nr | currency | price_value | item_name| order_id
+|--|--|--|--|--|
+| 1 | CZK| 100 |Umbrella|1
+| 2 | CZK| 200|Rain Coat|2
+| 1 | GBP| 100|Sun Screen|2
+
+
+
 
 For more information about Generic mapping plese refer to [the generic ex documentation](https://developers.keboola.com/extend/generic-extractor/map/)
 

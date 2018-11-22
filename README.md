@@ -20,6 +20,23 @@ Converts XML files to JSON and then to CSV.
 - **append_row_nr** (bool) - Use `true` if you want to generate `row_nr` for each object in each Array. This is usefull when you need to setup primary key of child object that has only reference to parent id and not any unique value in parent or global context. Then you would set the PK as [`parent_key`,`row_nr`]
 - **root_node** (string) - `.` separated path to the root node of the resulting JSON - usually you only want to map the root array, not all the wrapper tags. For more info see examples below.
 
+## Behaviour
+
+### XML attributes
+All xml attributes are converted into an object attribute prefixed by `xml_attr_`, while the original value of the tag will be converted to an attribute named `txt_content_`  e.g. 
+```xml
+<price currency="CZK">100</price>
+```
+Gets converted to (important for mapping) 
+```json
+"price": {
+		  "xml_attr_currency": "CZK",
+		  "txt_content_": "200"
+		 }
+```
+
+
+
 ## Examples
 #### XML example #1
 ```xml
@@ -118,19 +135,25 @@ Assuming XML file in `/in/files/`.
 
 ```
 The above produces two tables  according to mapping setting `order.csv`:
-
 | root_el_orders_order |
 |--|
 | root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f |
 
-
+```
+`root_el_root_el_orders_order.csv`:
+```csv
+"id","date","cust_name","order-item","row_nr","JSON_parentId"
+"1","2018-01-01","David","root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6","1","root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f"
+"2","2018-07-02","Tom","root_el.root_el.orders.order_929b76dfdf2f8fd8857980899bf9ba26","2","root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f"
+```
 and `root_el_root_el_orders_order_order-item.csv`
-
 | price_xml_attr_currency | price_txt_content | item | row_nr| JSON_parentId
 |--|--|--|--|--|
 | CZK | 100| Umbrella |1|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
 | CZK | 200| Rain Coat|2|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
 | GBP | 100| Sun Screen|1|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
+
+```
 
 
 ### Advanced Example 1 - nested arrays, with mapping
@@ -248,13 +271,11 @@ Assuming XML file in `/in/files/`.
 ```
 
 The above produces two tables  according to mapping setting `order.csv`:
-
 | order_id | order_date | customer_name |
 |--|--|--|
 | 1 |  2018-01-01| David |
 | 2 |  2018-01-02|  Tom|
 and `order-items.csv`:
-
 | row_nr | currency | price_value | item_name| order_id
 |--|--|--|--|--|
 | 1 | CZK| 100 |Umbrella|1

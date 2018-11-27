@@ -35,6 +35,60 @@ Gets converted to (important for mapping)
 		 }
 ```
 
+### XML Namespaces
+Currently the processor has limited support of xml namespaces. The tags with defined namespace are prefixed by `NAMESPACE-NAME_`. As in example below:
+```xml
+<?xml version='1.0' ?>
+<root xmlns:e="http://www.mycompany.org/eshop">
+    <e:orders>
+        <e:order>
+            <e:id>1</e:id>
+            <e:date>2018-01-01</e:date>
+            <e:cust_name>David</e:cust_name>	
+            <e:order-item>
+                <e:price currency="CZK">100</e:price>
+                <e:item>Umbrella</e:item>
+            </e:order-item>
+            <e:order-item>
+                <e:price currency="CZK">200</e:price>
+                <e:item>Rain Coat</e:item>
+            </e:order-item>
+        </e:order>
+    </e:orders>
+</root>
+```
+The above produces following JSON:
+```json
+{
+	"root": {
+		"e-orders": {
+			"e-order": {
+				"e-id": "1",
+				"e-date": "2018-01-01",
+				"e-cust_name": "David",
+				"e-order-item": [{
+						"e-price": {
+							"xml_attr_currency": "CZK",
+							"txt_content_": "100"
+						},
+						"e-item": "Umbrella",
+						"row_nr": 1
+					}, {
+						"e-price": {
+							"xml_attr_currency": "CZK",
+							"txt_content_": "200"
+						},
+						"e-item": "Rain Coat",
+						"row_nr": 2
+					}
+				]
+			}
+		}
+	}
+}
+```
+
+**limitations**: namespace must be defined in root. Multiple namespaces do not work at the moment.
 
 
 ## Examples

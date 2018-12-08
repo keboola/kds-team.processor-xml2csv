@@ -40,11 +40,12 @@
         "tests": [
             "@tests-phpunit",
             "@tests-datadir"
+        ],        
+        "build": [
+            "@tests"
         ],
-
-        "build": [],
         "ci": [
-            "@composer validate --no-check-all --strict",
+            "@composer validate --no-check-publish --no-check-all",
             "@build"
         ]
     }

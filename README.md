@@ -16,7 +16,7 @@ Converts XML files to JSON and then to CSV.
 
 - **in_type** (enum [`files`,`tables`]) -  specifies the input folder where to look for input data. e.g. when set to `table` the processor will look for inpu in `/in/tables/` folder.
 - **incremental** (bool) - flag whether the resulting tables should be uploaded incrementally. Makes most sense with mapping setup, since it allows you to specify primary keys.
-- **always_array** (array) - array of tag names that should be always converted to (JSON) array. This is helpful when you know that some of the tags can occur multiple times. For instance `<OrderItem>` tag could probably  have multiple occurrences. If the XML contains only single one it would be treated as an `Object`, including `["OrderItem"]` as a value  of this parameter will ensure it is always an Array.
+- **always_array** (array) - array of tag names that should be always converted to (JSON) array. This is helpful when you know that some of the tags can occur multiple times. For instance `<OrderItem>` tag could probably  have multiple occurrences. If the XML contains only single one it would be treated as an `Object`, including `["OrderItem"]` as a value  of this parameter will ensure it is always an Array. **ATTENTION** it is crutial to set this properly, especially when using no `mapping`! When setup improperly, it may produce unexpected results. See more in [behaviour section](##Behaviour).
 - **append_row_nr** (bool) - Use `true` if you want to generate `row_nr` for each object in each Array. This is usefull when you need to setup primary key of child object that has only reference to parent id and not any unique value in parent or global context. Then you would set the PK as [`parent_key`,`row_nr`]
 - **root_node** (string) - `.` separated path to the root node of the resulting JSON - usually you only want to map the root array, not all the wrapper tags. For more info see examples below.
 
@@ -88,7 +88,93 @@ The above produces following JSON:
 }
 ```
 
+
 **limitations**: namespace must be defined in root. Multiple namespaces do not work at the moment.
+
+### `always_array` parameter
+
+It is crutial specify all tags that may occurr multiple times and hence should be treated as arrays. Not specifying this could lead to unexpected results.
+
+If processor is to process following two files:
+
+**file1**:
+
+```xml
+<?xml version='1.0' ?>
+<root_el>
+    <orders>
+        <order>
+            <id>1</id>
+            <date>2018-01-01</date>
+            <cust_name>David</cust_name>	
+            <order-item>
+                <price currency="CZK">100</price>
+                <item>Umbrella</item>
+            </order-item>
+            <order-item>
+                <price currency="CZK">200</price>
+                <item>Rain Coat</item>
+            </order-item>
+        </order>
+    </orders>
+</root_el>
+```
+**file2**:
+
+```xml
+<?xml version='1.0' ?>
+<root_el>
+    <orders>
+	        <order>
+            <id>2</id>
+            <date>2018-07-02</date>
+            <cust_name>Tom</cust_name>	
+            <order-item>
+                <price currency="GBP">100</price>
+                <item>Sun Screen</item>
+            </order-item>
+        </order>
+    </orders>
+</root_el>
+```
+
+**configuration**:
+```json
+{
+    "definition": {
+        "component": "kds-team.processor-xml2csv"
+    },
+    "parameters" : {
+	"mapping" : {},		
+	"append_row_nr" : true,
+	"always_array" : [],
+	"incremental":true,
+	"root_node" : "",
+    "in_type": "files"
+	}
+}
+```
+
+the result CSV would be in this form:
+
+The above produces two tables  according to mapping setting `root_el.csv`:
+
+| root_el_orders_order_id | root_el_orders_order_date | root_el_orders_order_cust_name | root_el_orders_order_order-item
+|--|--|--|--|
+| 1 | 2018-01-01| David | root_el.root_el.orders.order_0a522195d222a8a0dcdc268eadd79625
+| 2 | 2018-01-02| Tom | root_el.root_el.orders.order_417d91644a84d2dd7e423f2bdfaa777f
+
+
+and `root_el_root_el_orders_order_order-item.csv`:
+
+| price_xml_attr_currency_u0 | price_txt_content_u0 | item_u0 | row_nr| JSON_parentId
+|--|--|--|--|--|
+| CZK | 100| Umbrella |1|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
+| CZK | 200| Rain Coat|2|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
+| GBP | 100| Sun Screen|1|root_el.root_el.orders.order_d3859e7943e09800b982215f5c4434c6
+
+Notice the `_u0` prefix added in order item table, this might be different every time. Adding `order_item` and `order` to `allways_array` parameter will produce consistent results.
+
 
 
 ## Examples

@@ -10,10 +10,9 @@ pipelines:
           - docker build -t $APP_IMAGE .
           - docker run $APP_IMAGE composer ci
 
-  branches:
-    master:
+  tags:
+    '*':
       - step:
-          deployment: production
           script:
           - docker -v
           - docker build -t $APP_IMAGE .

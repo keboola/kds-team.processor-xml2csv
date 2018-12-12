@@ -10,9 +10,10 @@ pipelines:
           - docker build -t $APP_IMAGE .
           - docker run $APP_IMAGE composer ci
 
-  tags:
-    '*':
+  branches:
+    master:
       - step:
+          deployment: production
           script:
           - docker -v
           - docker build -t $APP_IMAGE .
@@ -24,4 +25,5 @@ pipelines:
           # - docker push $REPOSITORY:test
           # - docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job $KBC_DEVELOPERPORTAL_APP $BASE_KBC_CONFIG test
           # - docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job $KBC_DEVELOPERPORTAL_APP $KBC_CONFIG_1 test
+          # Deploy is only triggered on tagged commit
           - ./deploy.sh

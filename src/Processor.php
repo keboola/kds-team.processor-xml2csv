@@ -50,14 +50,14 @@ class Processor
         $xml_parser = new XML2JsonConverter();
         $manifests = $this->getManifests($inputDir);
 
-        foreach ($finderFiles as $file) {
-            if (filesize($file->getRealPath())==0) {
-                $this->logger->info("File" .$file->getFileName() . "is empty, skipping");
-                continue;
-            }
+        foreach ($finderFiles as $file) {           
             $this->logger->info("Parsing file " . $file->getFileName());
             try {
-                $xml_string = file_get_contents($file->getRealPath());
+                $xml_string =trim(file_get_contents($file->getRealPath()));
+                if (strlen($xml_string)==0) {
+                    $this->logger->info("File" .$file->getFileName() . "is empty, skipping");
+                    continue;
+                }
                 $json_result_txt = $xml_parser->xml2json($xml_string, $this->add_row_nr, $this->forceArrayAttrs);
                 // get root if specified
                 $json_result_root = $this->getRoot(json_decode($json_result_txt));

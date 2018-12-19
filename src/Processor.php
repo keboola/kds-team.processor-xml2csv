@@ -56,12 +56,15 @@ class Processor
                 continue;
             }
             $this->logger->info("Parsing file " . $file->getFileName());
-
-            $xml_string = file_get_contents($file->getRealPath());
-            $json_result_txt = $xml_parser->xml2json($xml_string, $this->add_row_nr, $this->forceArrayAttrs);
-            // get root if specified
-            $json_result_root = $this->getRoot(json_decode($json_result_txt));
-            $this->jsonParser->parse($json_result_root);
+            try {
+                $xml_string = file_get_contents($file->getRealPath());
+                $json_result_txt = $xml_parser->xml2json($xml_string, $this->add_row_nr, $this->forceArrayAttrs);
+                // get root if specified
+                $json_result_root = $this->getRoot(json_decode($json_result_txt));
+                $this->jsonParser->parse($json_result_root);
+            } catch(\Throwable $e) {
+                throw new UserException("Failed to parse file: ".$file->getFileName().' '.$e->getMessage(), 1, $e);
+            }
 
             //file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
         }

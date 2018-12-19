@@ -28,7 +28,7 @@
         "slevomat/coding-standard": "4.4.6",
         "squizlabs/php_codesniffer": "~3.2",
         "symfony/process": "^4.0",
-        "keboola/datadir-tests": "^1.0"
+        "keboola/datadir-tests": "2.3.1"
     },
     "config": {
         "sort-packages": true,
@@ -36,7 +36,7 @@
     },
     "scripts": {
         "tests-phpunit": "phpunit",
-        "tests-datadir": "datadir-tests",
+        "tests-datadir": "phpunit tests/functional",
         "tests": [
             "@tests-phpunit",
             "@tests-datadir"

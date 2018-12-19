@@ -67,10 +67,7 @@ class Processor
         }
         $this->logger->info("Writting results..");
         $csv_files = $this->jsonParser->getCsvFiles();
-        if (sizeof($csv_files)==1 && $csv_files['row'] == null) {
-            $this->logger->info("Finished. No files parsed.");
-            return $this;
-        }
+
         $this->storeResults($outputDir, $csv_files, $this->incremental);
         return $this;
     }
@@ -116,6 +113,10 @@ class Processor
         foreach ($csvFiles as $key => $file) {
             $path = $outdir;
 
+            if ($file == null) {
+                $this->logger->info("No results parsed.");
+                return $this;
+            }
             if (!is_null($bucketName)) {
                 $path .= $bucketName . '/';
                 $bucketName = $sapiPrefix ? 'in.c-' . $bucketName : $bucketName;

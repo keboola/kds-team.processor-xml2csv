@@ -42,6 +42,7 @@ class Processor {
         $finderFiles = new Finder();
 
         $finderFiles->files()->in($inputDir)->notName('*.manifest');
+        $finderFiles->sortByName();
         $xml_parser = new XML2JsonConverter();
         $manifests = $this->getManifests($inputDir);
 

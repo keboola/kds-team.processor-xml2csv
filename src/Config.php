@@ -33,4 +33,8 @@ class Config extends BaseConfig {
         return $this->getValue(['parameters', 'always_array']);
     }
 
+    public function addFileName(): bool {
+        return $this->getValue(['parameters', 'add_file_name']);
+    }
+
 }

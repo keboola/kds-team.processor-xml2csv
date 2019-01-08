@@ -20,6 +20,8 @@ Converts XML files to JSON and then to CSV.
 - **append_row_nr** (bool) - Use `true` if you want to generate `row_nr` for each object in each Array. This is usefull when you need to setup primary key of child object that has only reference to parent id and not any unique value in parent or global context. Then you would set the PK as [`parent_key`,`row_nr`]
 - **root_node** (string) - `.` separated path to the root node of the resulting JSON - usually you only want to map the root array, not all the wrapper tags. For more info see examples below.
 - **mapping** (json object) - mapping object in the same format as defined for [generic extractor](https://developers.keboola.com/extend/generic-extractor/map/). For more details on usage see example below.
+- **add_file_name** (bool) - default `false` - flag whether to add the source file name column to the root object. The resulting column name is `keboola_file_name_col`. **NOTE**: Note that when you specify `root_node` the new column is added there. Also when using mapping you need to specify the mapping also for the new column name.
+
 
 ## Behaviour
 
@@ -225,7 +227,8 @@ Assuming XML file in `/in/files/`.
 	"always_array" : ["order-item"],
 	"incremental":true,
 	"root_node" : "",
-    "in_type": "files"
+	"in_type": "files",
+	"add_file_name": true
 	}
 }
 ```
@@ -233,6 +236,7 @@ Assuming XML file in `/in/files/`.
 ```json
 {
 	"root_el": {
+		"keboola_file_name_col" : "sample1.xml",
 		"orders": {
 			"order": [{
 					"id": "1",
@@ -277,9 +281,9 @@ Assuming XML file in `/in/files/`.
 ```
 The above produces two tables  according to mapping setting `order.csv`:
 
-| root_el_orders_order |
-|--|
-| root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f |
+| root_el_orders_order | root_el_orders_keboola_file_name_col
+|--|--|
+| root_el.root_el.orders_a91b89e33c2b324f4204686aa64a0d5f | sample1.xml
 
 
 and `root_el_root_el_orders_order_order-item.csv`:

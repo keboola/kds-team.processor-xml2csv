@@ -20,7 +20,8 @@ class Component extends BaseComponent {
                 $jsonParser, $this->getConfig()->getAppendRowNr(), 
                 $this->getConfig()->getForceArrayAttributes(), 
                 $this->getConfig()->isIncremental(), 
-                $this->getConfig()->getRootNode(),
+                $this->getConfig()->getRootNode(),                
+                $this->getConfig()->addFileName(),
                 $this->getLogger()
         );
 

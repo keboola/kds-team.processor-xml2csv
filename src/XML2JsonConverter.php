@@ -15,7 +15,7 @@ class XML2JsonConverter {
             'addRowNumber' => $addRowNr];
 
         $xml_aray = $this->xmlToArray($xml, $settings);
-        return $xml_aray;
+        return json_encode($xml_aray);
     }
 
     /**

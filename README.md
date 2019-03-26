@@ -46,8 +46,8 @@ All CDATA values are included without the CDATA container as a textual value
 ```
 Gets converted to
 ```json
-"{
-    ITEM_ID": "256-362"
+{
+    "ITEM_ID": "256-362"
 }
 ```
 

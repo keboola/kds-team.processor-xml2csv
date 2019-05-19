@@ -38,6 +38,20 @@ Gets converted to (important for mapping)
 		 }
 ```
 
+
+### CDATA wrapper
+All CDATA values are included without the CDATA container as a textual value 
+```xml
+<ITEM_ID><![CDATA[256-362]]></ITEM_ID>
+```
+Gets converted to
+```json
+{
+    "ITEM_ID": "256-362"
+}
+```
+
+
 ### XML Namespaces
 Currently the processor has limited support of xml namespaces. The tags with defined namespace are prefixed by `NAMESPACE-NAME_`. As in example below:
 ```xml

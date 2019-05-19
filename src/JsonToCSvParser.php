@@ -53,6 +53,9 @@ class JsonToCSvParser {
 
     private function getType($json_data) {
         $type = key($json_data);
+        if (!is_string ($type)) {
+            $type = 'root';
+        }
         return $type;
     }
 

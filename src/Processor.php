@@ -75,7 +75,7 @@ class Processor
                 throw new UserException("Failed to parse file: ".$file->getFileName().' '.$e->getMessage(), 1, $e);
             }
 
-            //file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
+            file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
         }
         $this->logger->info("Writting results..");
         $csv_files = $this->jsonParser->getCsvFiles();

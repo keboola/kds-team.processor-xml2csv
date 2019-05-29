@@ -21,6 +21,10 @@ class Config extends BaseConfig {
         return $this->getValue(['parameters', 'incremental']);
     }
 
+    public function ignoreOnFailure(): bool {
+        return $this->getValue(['parameters', 'ingore_on_failure']);
+    }
+
     public function getRootNode(): string {
         return $this->getValue(['parameters', 'root_node']);
     }

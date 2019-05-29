@@ -8,7 +8,6 @@ use esnerda\XML2CsvProcessor\XML2JsonConverter;
 
 class Processor
 {
-
     const FILE_NAME_COL_NAME = 'keboola_file_name_col';
     /** @var  string */
     private $jsonParser;
@@ -23,21 +22,22 @@ class Processor
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct($jsonParser, bool $add_row_nr, $forceArrayAttrs, bool $incremental, string $root_el, $addFileName, $logger)
+    public function __construct($jsonParser, bool $add_row_nr, $forceArrayAttrs, bool $incremental, string $root_el, $addFileName, $ignoreOnFailure, $logger)
     {
         $this->jsonParser = $jsonParser;
         $this->add_row_nr = $add_row_nr;
         $this->forceArrayAttrs = $forceArrayAttrs;
         $this->incremental = $incremental;
-        $this->root_el = $root_el;        
+        $this->root_el = $root_el;
         $this->addFileName = $addFileName;
+        $this->ignoreOnFailure = $ignoreOnFailure;
         $this->logger = $logger;
     }
 
     public function stampNames(string $datadir, string $type): self
     {
         return $this->processFiles(
-                        sprintf("%s/in/" . $type . '/', $datadir),
+            sprintf("%s/in/" . $type . '/', $datadir),
             sprintf("%s/out/tables/", $datadir)
         );
     }
@@ -61,7 +61,13 @@ class Processor
                     $this->logger->info("File" .$file->getFileName() . "is empty, skipping");
                     continue;
                 }
-                $json_result_txt = $xml_parser->xml2json($xml_string, $this->add_row_nr, $this->forceArrayAttrs);
+                $json_result_txt = $xml_parser->xml2json($xml_string, $this->add_row_nr, $this->forceArrayAttrs, $this->ignoreOnFailure);
+                // check for err in case on ignore of failure
+                if ($this->ignoreOnFailure && substr($json_result_txt, 0, 3)=='ERR') {
+                    $this->logger->warn("Failed to parse file: ".$file->getFileName().' '.$json_result_txt);
+                    continue;
+                }
+                
                 // get root if specified
                 $json_result_root = $this->getRoot(json_decode($json_result_txt));
                 // add file name col

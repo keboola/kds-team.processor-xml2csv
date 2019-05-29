@@ -2,31 +2,51 @@
 
 namespace esnerda\XML2CsvProcessor;
 
-class XML2JsonConverter {
-
+class XML2JsonConverter
+{
     const KEY_ROW_NR = 'row_nr';
 
-    public function xml2json(string $xml_string, bool $addRowNr, $alwaysArray = [], $attributePrefix = 'xml_attr_', $txtContent = 'txt_content_') {
-
+    public function xml2json(string $xml_string, bool $addRowNr, $alwaysArray = [], bool $contOnFailure = false, $attributePrefix = 'xml_attr_', $txtContent = 'txt_content_')
+    {
+        libxml_use_internal_errors(true);
         $xml = simplexml_load_string($xml_string);
+        $errMsgs = '';
+        if (!$xml) {
+            $errors = libxml_get_errors();       
+            $errMsgs='ERR';     
+            foreach ($errors as $error) {
+                $errMsgs .= $this->display_xml_error($error, $xml);
+            }
+        
+            libxml_clear_errors();
+        }
+        
         $settings = ['attributePrefix' => $attributePrefix,
             'textContent' => $txtContent,
             'alwaysArray' => $alwaysArray,
             'addRowNumber' => $addRowNr];
 
-        $xml_aray = $this->xmlToArray($xml, $settings);
-        return json_encode($xml_aray);
+        if ($contOnFailure && $errMsgs) {
+            return  $errMsgs;
+        }else if($errMsgs){
+            throw new \InvalidArgumentException($errMsgs);
+        }
+
+        return json_encode($this->xmlToArray($xml, $settings));
+        
     }
+
+    
 
     /**
      * Credits to https://outlandish.com/blog/tutorial/xml-to-json/
-     * 
+     *
      * @param type $xml - xml object
      * @param type $options
      * @return type
      */
-    private function xmlToArray($xml, $options = []) {
-
+    private function xmlToArray($xml, $options = [])
+    {
         $defaults = ['namespaceSeparator' => ':', //you may want this to be something other than a colon
             'attributePrefix' => '@', //to distinguish between attributes and nodes with the same name
             'alwaysArray' => array(), //array of xml tag names which should always become arrays
@@ -123,7 +143,8 @@ class XML2JsonConverter {
         }
     }
 
-    private function convertToArray($value, $parentName, $addRowNr) {
+    private function convertToArray($value, $parentName, $addRowNr)
+    {
         if ($addRowNr) {
             $newArr = $this->addRowNumber($value, $parentName, 1);
         } else {
@@ -133,7 +154,8 @@ class XML2JsonConverter {
         return $newArr;
     }
 
-    private function addRowNumber($data, $parentName, $rowNr) {
+    private function addRowNumber($data, $parentName, $rowNr)
+    {
         $newArr = [];
         if (is_array($data)) {
             $newArr = $data;
@@ -161,4 +183,32 @@ class XML2JsonConverter {
       return array($element, $childProperties);
       }
       } */
+
+    private function display_xml_error($error, $xml)
+    {
+        $return  = $xml[$error->line - 1] . "\n";
+        $return .= str_repeat('-', $error->column) . "^\n";
+      
+        switch ($error->level) {
+              case LIBXML_ERR_WARNING:
+                  $return .= "Warning $error->code: ";
+                  break;
+               case LIBXML_ERR_ERROR:
+                  $return .= "Error $error->code: ";
+                  break;
+              case LIBXML_ERR_FATAL:
+                  $return .= "Fatal Error $error->code: ";
+                  break;
+          }
+      
+        $return .= trim($error->message) .
+                     "\n  Line: $error->line" .
+                     "\n  Column: $error->column";
+      
+        if ($error->file) {
+            $return .= "\n  File: $error->file";
+        }
+      
+        return "$return\n\n--------------------------------------------\n\n";
+    }
 }

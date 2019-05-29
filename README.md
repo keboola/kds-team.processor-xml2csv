@@ -18,6 +18,7 @@ Converts XML files to JSON and then to CSV.
 - **incremental** (bool) - flag whether the resulting tables should be uploaded incrementally. Makes most sense with mapping setup, since it allows you to specify primary keys.
 - **always_array** (array) - array of tag names that should be always converted to (JSON) array. This is helpful when you know that some of the tags can occur multiple times. For instance `<OrderItem>` tag could probably  have multiple occurrences. If the XML contains only single one it would be treated as an `Object`, including `["OrderItem"]` as a value  of this parameter will ensure it is always an Array. **ATTENTION** it is crutial to set this properly, especially when using no `mapping`! When setup improperly, it may produce unexpected results. See more in [behaviour section](##Behaviour).
 - **append_row_nr** (bool) - Use `true` if you want to generate `row_nr` for each object in each Array. This is usefull when you need to setup primary key of child object that has only reference to parent id and not any unique value in parent or global context. Then you would set the PK as [`parent_key`,`row_nr`]
+- **ingore_on_failure** (bool) - Use `true` to skip malformed files. A warning message will be produced and the files skipped. DEFAULT: `false`
 - **root_node** (string) - `.` separated path to the root node of the resulting JSON - usually you only want to map the root array, not all the wrapper tags. For more info see examples below.
 - **mapping** (json object) - mapping object in the same format as defined for [generic extractor](https://developers.keboola.com/extend/generic-extractor/map/). For more details on usage see example below.
 - **add_file_name** (bool) - default `false` - flag whether to add the source file name column to the root object. The resulting column name is `keboola_file_name_col`. **NOTE**: Note that when you specify `root_node` the new column is added there. Also when using mapping you need to specify the mapping also for the new column name.
@@ -166,6 +167,7 @@ If processor is to process following two files:
 	"append_row_nr" : true,
 	"always_array" : [],
 	"incremental":true,
+	"ingore_on_failure":false,
 	"root_node" : "",
     "in_type": "files"
 	}

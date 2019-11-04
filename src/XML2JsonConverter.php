@@ -83,7 +83,7 @@ class XML2JsonConverter
                 //recurse into child nodes
                 $childArray = $this->xmlToArray($childXml, $options);
                 //list($childTagName, $childProperties) = each($childArray);
-                $childTagName = key($childArray);
+                    $childTagName = key($childArray);
                 $childProperties = current($childArray);
                 //replace characters in tag name
                 if ($options['keySearch']) {
@@ -146,7 +146,7 @@ class XML2JsonConverter
     private function convertToArray($value, $parentName, $addRowNr)
     {
         if ($addRowNr) {
-            $newArr = $this->addRowNumber($value, $parentName, 1);
+            $newArr = array($this->addRowNumber($value, $parentName, 1));
         } else {
             $newArr = array($value);
         }

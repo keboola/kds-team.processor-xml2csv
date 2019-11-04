@@ -61,6 +61,7 @@ class Processor
                     $this->logger->info("File" .$file->getFileName() . "is empty, skipping");
                     continue;
                 }
+                $this->logger->info("Converting to JSON..");
                 $json_result_txt = $xml_parser->xml2json($xml_string, $this->add_row_nr, $this->forceArrayAttrs, $this->ignoreOnFailure);
                 // check for err in case on ignore of failure
                 if ($this->ignoreOnFailure && substr($json_result_txt, 0, 3)=='ERR') {
@@ -76,12 +77,14 @@ class Processor
                     // convert back to json array
                     $json_result_root =json_decode($json_result_root);
                 }
+                //file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
+                $this->logger->info("Converting to CSV..");
                 $this->jsonParser->parse($json_result_root);
             } catch (\Throwable $e) {
                 throw new UserException("Failed to parse file: ".$file->getFileName().' '.$e->getMessage(), 1, $e);
             }
 
-            //file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
+           
         }
         $this->logger->info("Writting results..");
         $csv_files = $this->jsonParser->getCsvFiles();

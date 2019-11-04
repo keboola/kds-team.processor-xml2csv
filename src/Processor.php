@@ -77,7 +77,7 @@ class Processor
                     // convert back to json array
                     $json_result_root =json_decode($json_result_root);
                 }
-                file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
+                //file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
                 $this->logger->info("Converting to CSV..");
                 $this->jsonParser->parse($json_result_root);
             } catch (\Throwable $e) {

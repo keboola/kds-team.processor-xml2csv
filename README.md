@@ -22,6 +22,7 @@ Converts XML files to JSON and then to CSV.
 - **root_node** (string) - `.` separated path to the root node of the resulting JSON - usually you only want to map the root array, not all the wrapper tags. For more info see examples below.
 - **mapping** (json object) - mapping object in the same format as defined for [generic extractor](https://developers.keboola.com/extend/generic-extractor/map/). For more details on usage see example below.
 - **add_file_name** (bool) - default `false` - flag whether to add the source file name column to the root object. The resulting column name is `keboola_file_name_col`. **NOTE**: Note that when you specify `root_node` the new column is added there. Also when using mapping you need to specify the mapping also for the new column name.
+- **store_json** (bool) - default `false` - if set to `true`, stores intermediate `JSON` files in the `data/out/files` folder. This is useful when designing the `mapping`.
 
 
 ## Behaviour
@@ -54,64 +55,61 @@ Gets converted to
 
 
 ### XML Namespaces
-Currently the processor has limited support of xml namespaces. The tags with defined namespace are prefixed by `NAMESPACE-NAME_`. As in example below:
+The tags with defined namespace are prefixed by `NAMESPACE-NAME_`. As in example below:
 ```xml
 <?xml version='1.0' ?>
-<root xmlns:e="http://www.mycompany.org/eshop">
-    <e:orders>
-        <e:order>
-            <e:id>1</e:id>
-            <e:date>2018-01-01</e:date>
-            <e:cust_name>David</e:cust_name>	
-            <e:order-item>
-                <e:price currency="CZK">100</e:price>
-                <e:item>Umbrella</e:item>
-            </e:order-item>
-            <e:order-item>
-                <e:price currency="CZK">200</e:price>
-                <e:item>Rain Coat</e:item>
-            </e:order-item>
-        </e:order>
-    </e:orders>
-</root>
+<root_el xmlns="http://example.com/main_schema" xmlns:custom="http://example.com/custom_schema">
+    <orders>
+        <order>
+            <id>1</id>
+            <date>2018-01-01</date>
+            <custom:cust_name>David</custom:cust_name>
+            <order-item>
+                <price currency="CZK">100</price>
+                <item>Umbrella</item>
+            </order-item>
+            <order-item>
+                <price currency="CZK">200</price>
+                <item>Rain Coat</item>
+            </order-item>
+        </order>
+    </orders>
+</root_el>
 ```
 The above produces following JSON:
 ```json
 {
-	"root": {
-		"e-orders": {
-			"e-order": {
-				"e-id": "1",
-				"e-date": "2018-01-01",
-				"e-cust_name": "David",
-				"e-order-item": [{
-						"e-price": {
-							"xml_attr_currency": "CZK",
-							"txt_content_": "100"
-						},
-						"e-item": "Umbrella",
-						"row_nr": 1
-					}, {
-						"e-price": {
-							"xml_attr_currency": "CZK",
-							"txt_content_": "200"
-						},
-						"e-item": "Rain Coat",
-						"row_nr": 2
-					}
-				]
-			}
-		}
-	}
+  "root_el": {
+    "orders": {
+      "order": {
+        "id": "1",
+        "date": "2018-01-01",
+        "custom_cust_name": "David",
+        "order-item": [
+          {
+            "price": {
+              "xml_attr_currency": "CZK",
+              "txt_content_": "100"
+            },
+            "item": "Umbrella"
+          },
+          {
+            "price": {
+              "xml_attr_currency": "CZK",
+              "txt_content_": "200"
+            },
+            "item": "Rain Coat"
+          }
+        ]
+      }
+    }
+  }
 }
 ```
 
-
-**limitations**: namespace must be defined in root. Multiple namespaces do not work at the moment.
-
 ### `always_array` parameter
 
-It is crutial specify all tags that may occurr multiple times and hence should be treated as arrays. Not specifying this could lead to unexpected results.
+It is crucial specify all tags that may occur multiple times and hence should be treated as arrays. Not specifying this could lead to unexpected results.
 
 If processor is to process following two files:
 
@@ -169,7 +167,8 @@ If processor is to process following two files:
 	"incremental":true,
 	"ingore_on_failure":false,
 	"root_node" : "",
-    "in_type": "files"
+    "in_type": "files",
+    "store_json": false
 	}
 }
 ```

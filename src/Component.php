@@ -29,7 +29,7 @@ class Component extends BaseComponent {
 
 
 
-        $processor->stampNames($this->getDataDir(), $this->getConfig()->getInputType());
+        $processor->parseInput($this->getDataDir(), $this->getConfig()->getInputType());
     }
 
     protected function getConfigClass(): string {

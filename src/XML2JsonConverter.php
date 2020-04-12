@@ -185,7 +185,7 @@ class XML2JsonConverter
 
     private function display_xml_error($error, $xml)
     {
-        $return = $xml[$error->line - 1] . "\n";
+        $return = $xml[$error->line - 1] ?? 'N/A' . "\n";
         $return .= str_repeat('-', $error->column) . "^\n";
 
         switch ($error->level) {

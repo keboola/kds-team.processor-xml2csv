@@ -35,15 +35,16 @@ class Processor
         $this->storeJson = $storeJson;
     }
 
-    public function stampNames(string $datadir, string $type): self
+    public function parseInput(string $datadir, string $type): self
     {
         return $this->processFiles(
             sprintf("%s/in/" . $type . '/', $datadir),
-            sprintf("%s/out/tables/", $datadir)
+            sprintf("%s/out/tables/", $datadir),
+            sprintf("%s/out/files/", $datadir)
         );
     }
 
-    private function processFiles(string $inputDir, string $outputDir): self
+    private function processFiles(string $inputDir, string $outputDir, string $filesOutputDir): self
     {
         $finderFiles = new Finder();
 
@@ -77,7 +78,7 @@ class Processor
                     $json_result_root = json_decode($json_result_root);
                 }
                 if ($this->storeJson) {
-                    file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
+                    file_put_contents($filesOutputDir . $file->getFileName() . '.json', json_encode($json_result_root));
                 }
                 $this->logger->info("Converting to CSV..");
                 $this->jsonParser->parse($json_result_root);

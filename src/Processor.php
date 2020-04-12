@@ -22,7 +22,7 @@ class Processor
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct($jsonParser, bool $add_row_nr, $forceArrayAttrs, bool $incremental, string $root_el, $addFileName, $ignoreOnFailure, $logger)
+    public function __construct($jsonParser, bool $add_row_nr, $forceArrayAttrs, bool $incremental, string $root_el, $addFileName, $ignoreOnFailure, $logger, $storeJson)
     {
         $this->jsonParser = $jsonParser;
         $this->add_row_nr = $add_row_nr;
@@ -32,6 +32,7 @@ class Processor
         $this->addFileName = $addFileName;
         $this->ignoreOnFailure = $ignoreOnFailure;
         $this->logger = $logger;
+        $this->storeJson = $storeJson;
     }
 
     public function stampNames(string $datadir, string $type): self
@@ -44,8 +45,6 @@ class Processor
 
     private function processFiles(string $inputDir, string $outputDir): self
     {
-        //$this->ensureDir($outputDir, $inputDir);
-
         $finderFiles = new Finder();
 
         $finderFiles->files()->in($inputDir)->notName('*.manifest');
@@ -56,35 +55,37 @@ class Processor
         foreach ($finderFiles as $file) {
             $this->logger->info("Parsing file " . $file->getFileName());
             try {
-                $xml_string =trim(file_get_contents($file->getRealPath()));
-                if (strlen($xml_string)==0) {
-                    $this->logger->info("File" .$file->getFileName() . "is empty, skipping");
+                $xml_string = trim(file_get_contents($file->getRealPath()));
+                if (strlen($xml_string) == 0) {
+                    $this->logger->info("File" . $file->getFileName() . "is empty, skipping");
                     continue;
                 }
                 $this->logger->info("Converting to JSON..");
                 $json_result_txt = $xml_parser->xml2json($xml_string, $this->add_row_nr, $this->forceArrayAttrs, $this->ignoreOnFailure);
                 // check for err in case on ignore of failure
-                if ($this->ignoreOnFailure && substr($json_result_txt, 0, 3)=='ERR') {
-                    $this->logger->warn("Failed to parse file: ".$file->getFileName().' '.$json_result_txt);
+                if ($this->ignoreOnFailure && substr($json_result_txt, 0, 3) == 'ERR') {
+                    $this->logger->warn("Failed to parse file: " . $file->getFileName() . ' ' . $json_result_txt);
                     continue;
                 }
-                
+
                 // get root if specified
                 $json_result_root = $this->getRoot(json_decode($json_result_txt));
                 // add file name col
                 if ($this->addFileName) {
                     $json_result_root = $this->addFileName(json_encode($json_result_root), $file->getFileName(), self::FILE_NAME_COL_NAME);
                     // convert back to json array
-                    $json_result_root =json_decode($json_result_root);
+                    $json_result_root = json_decode($json_result_root);
                 }
-                //file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
+                if ($this->storeJson) {
+                    file_put_contents($outputDir . $file->getFileName() . '.json', json_encode($json_result_root));
+                }
                 $this->logger->info("Converting to CSV..");
                 $this->jsonParser->parse($json_result_root);
             } catch (\Throwable $e) {
-                throw new UserException("Failed to parse file: ".$file->getFileName().' '.$e->getMessage(), 1, $e);
+                throw new UserException("Failed to parse file: " . $file->getFileName() . ' ' . $e->getMessage(), 1, $e);
             }
 
-           
+
         }
         $this->logger->info("Writting results..");
         $csv_files = $this->jsonParser->getCsvFiles();
@@ -108,7 +109,7 @@ class Processor
         }
         return json_encode($json_arr);
     }
-    
+
     private function getRoot($json)
     {
         if ($this->root_el != null) {

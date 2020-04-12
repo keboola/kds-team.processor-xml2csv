@@ -23,7 +23,8 @@ class Component extends BaseComponent {
                 $this->getConfig()->getRootNode(),                
                 $this->getConfig()->addFileName(),
                 $this->getConfig()->ignoreOnFailure(),
-                $this->getLogger()
+                $this->getLogger(),
+                $this->getConfig()->storeJson()
         );
 
 

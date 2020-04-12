@@ -40,6 +40,9 @@ class ConfigDefinition extends BaseConfigDefinition {
                 ->end()
                 ->variableNode('always_array')
                 ->end()
+                ->scalarNode('store_json')
+                ->defaultValue(false)
+                ->end()
                 ->end()
         ;
         // @formatter:on

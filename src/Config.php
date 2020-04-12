@@ -41,4 +41,8 @@ class Config extends BaseConfig {
         return $this->getValue(['parameters', 'add_file_name']);
     }
 
+    public function storeJson(): bool {
+        return $this->getValue(['parameters', 'store_json']);
+    }
+
 }

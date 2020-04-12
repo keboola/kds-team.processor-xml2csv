@@ -243,7 +243,8 @@ Assuming XML file in `/in/files/`.
 	"incremental":true,
 	"root_node" : "",
 	"in_type": "files",
-	"add_file_name": true
+	"add_file_name": true,
+    "store_json": false
 	}
 }
 ```

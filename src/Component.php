@@ -9,18 +9,23 @@ use Keboola\Component\BaseComponent;
 class Component extends BaseComponent {
 
     public function run(): void {
-        $type = 'root';
-        if ($this->getConfig()->getRootNode() != NULL) {
-            $nodes = explode('.', $this->getConfig()->getRootNode());
-            $type = $nodes[count($nodes) - 1];
+        if ($this->getConfig()->getMappingRootName() != '') {
+            $mappinig_root_name = $this->getConfig()->getMappingRootName();
+        } else {
+            $mappinig_root_name = 'root';
         }
-        $jsonParser = new JsonToCSvParser($this->getConfig()->getMapping(), $this->getLogger(), $type);
+
+        if ($this->getConfig()->getRootNode() != NULL && $this->getConfig()->getMappingRootName() == '') {
+            $nodes = explode('.', $this->getConfig()->getRootNode());
+            $mappinig_root_name = $nodes[count($nodes) - 1];
+        }
+        $jsonParser = new JsonToCSvParser($this->getConfig()->getMapping(), $this->getLogger(), $mappinig_root_name);
 
         $processor = new Processor(
-                $jsonParser, $this->getConfig()->getAppendRowNr(), 
-                $this->getConfig()->getForceArrayAttributes(), 
-                $this->getConfig()->isIncremental(), 
-                $this->getConfig()->getRootNode(),                
+                $jsonParser, $this->getConfig()->getAppendRowNr(),
+                $this->getConfig()->getForceArrayAttributes(),
+                $this->getConfig()->isIncremental(),
+                $this->getConfig()->getRootNode(),
                 $this->getConfig()->addFileName(),
                 $this->getConfig()->ignoreOnFailure(),
                 $this->getLogger(),

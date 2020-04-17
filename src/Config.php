@@ -45,4 +45,8 @@ class Config extends BaseConfig {
         return $this->getValue(['parameters', 'store_json']);
     }
 
+    public function getMappingRootName(): string {
+        return $this->getValue(['parameters', 'mapping_custom_root_name']);
+    }
+
 }

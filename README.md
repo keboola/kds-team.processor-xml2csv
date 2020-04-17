@@ -27,6 +27,7 @@ Converts XML files to JSON and then to CSV.
 - **ingore_on_failure** (bool) - Use `true` to skip malformed files. A warning message will be produced and the files skipped. DEFAULT: `false`
 - **root_node** (string) - `.` separated path to the root node of the resulting JSON - usually you only want to map the root array, not all the wrapper tags. For more info see examples below.
 - **mapping** (json object) - mapping object in the same format as defined for [generic extractor](https://developers.keboola.com/extend/generic-extractor/map/). For more details on usage see example below.
+- **mapping_custom_root_name**: (string) - optional parameter to use with mapping. It overrides the root table name.
 - **add_file_name** (bool) - default `false` - flag whether to add the source file name column to the root object. The resulting column name is `keboola_file_name_col`. **NOTE**: Note that when you specify `root_node` the new column is added there. Also when using mapping you need to specify the mapping also for the new column name.
 - **store_json** (bool) - default `false` - if set to `true`, stores intermediate `JSON` files in the `data/out/files` folder. This is useful when designing the `mapping`.
 

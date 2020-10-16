@@ -267,7 +267,7 @@ class XML2JsonConverter
         $xml = preg_replace('~</([a-z0-9]+):~is', '</$1_', $xml);
 
         // Default flags I use
-        if (empty($flags)) $flags = LIBXML_COMPACT | LIBXML_NOBLANKS | LIBXML_NOCDATA;
+        if (empty($flags)) $flags = LIBXML_COMPACT | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_PARSEHUGE;
         // Now load and return (namespaceless)
         return $xml = simplexml_load_string($xml, $sxclass, $flags);
     }

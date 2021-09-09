@@ -51,7 +51,6 @@ class Processor
         $finderFiles->files()->in($inputDir)->notName('*.manifest');
         $finderFiles->sortByName();
         $xml_parser = new XML2JsonConverter();
-        $manifests = $this->getManifests($inputDir);
 
         foreach ($finderFiles as $file) {
             $this->logger->info("Parsing file " . $file->getFileName());
@@ -123,21 +122,6 @@ class Processor
         } else {
             return $json;
         }
-    }
-
-    private function getManifests($inputDir)
-    {
-        $finderManifests = new Finder();
-        $manifests = [];
-        $finderManifests->files()->in($inputDir)->name('*.manifest');
-        foreach ($finderManifests->name('*.manifest') as $manifest) {
-            $manFile = file_get_contents($manifest->getRealPath());
-            $destination = explode('.', json_decode($manFile)->destination);
-            if (count($destination) >= 2) {
-                $manifests[$manifest->getFilename()] = $destination[0] . '.' . $destination[1];
-            }
-        }
-        return $manifests;
     }
 
     /**

@@ -22,14 +22,17 @@ class Component extends BaseComponent {
         $jsonParser = new JsonToCSvParser($this->getConfig()->getMapping(), $this->getLogger(), $mappinig_root_name);
 
         $processor = new Processor(
-                $jsonParser, $this->getConfig()->getAppendRowNr(),
-                $this->getConfig()->getForceArrayAttributes(),
-                $this->getConfig()->isIncremental(),
-                $this->getConfig()->getRootNode(),
-                $this->getConfig()->addFileName(),
-                $this->getConfig()->ignoreOnFailure(),
-                $this->getLogger(),
-                $this->getConfig()->storeJson()
+            $jsonParser,
+            $this->getManifestManager(),
+            $this->getConfig()->getAppendRowNr(),
+            $this->getConfig()->getForceArrayAttributes(),
+            $this->getConfig()->isIncremental(),
+            $this->getConfig()->getRootNode(),
+            $this->getConfig()->addFileName(),
+            $this->getConfig()->ignoreOnFailure(),
+            $this->getLogger(),
+            $this->getConfig()->storeJson(),
+            $this->getConfig()->getDataTypeSupport()->usingLegacyManifest()
         );
 
 

@@ -2,6 +2,7 @@
 
 namespace esnerda\XML2CsvProcessor;
 
+use Keboola\Component\Manifest\ManifestManager;
 use Keboola\Component\UserException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
@@ -13,14 +14,16 @@ class Processor
 
     public function __construct(
         private JsonToCSvParser $jsonParser,
+        private ManifestManager $manifestManager,
         private bool $add_row_nr,
-        private bool $forceArrayAttrs,
+        private array $forceArrayAttrs,
         private bool $incremental,
         private string $root_el,
         private bool $addFileName,
         private bool $ignoreOnFailure,
         private LoggerInterface $logger,
-        private bool $storeJson
+        private bool $storeJson,
+        private bool $usingLegacyManifest,
     )
     {
     }
@@ -157,16 +160,15 @@ class Processor
             }
 
             $resFileName = $key . '.csv';
-            $manifest = [];
-            if (!is_null($bucketName)) {
-                $manifest['destination'] = "{$bucketName}.{$key}";
-            }
-            $manifest['incremental'] = $file->isIncrementalSet() ? $file->getIncremental() : $incremental;
+
+            $manifestNew = $this->manifestManager->getTableManifest($resFileName);
+            $manifestNew->setIncremental($file->isIncrementalSet() ? $file->getIncremental() : $incremental);
             if (!empty($file->getPrimaryKey())) {
-                $manifest['primary_key'] = $file->getPrimaryKey(true);
+                $manifestNew->setLegacyPrimaryKeys($file->getPrimaryKey(true));
             }
-            $this->logger->info("Writting reult file: " . $resFileName);
-            file_put_contents($path . $resFileName . '.manifest', json_encode($manifest));
+
+            $this->logger->info("Writing result file: " . $resFileName);
+            $this->manifestManager->writeTableManifest($resFileName, $manifestNew, $this->usingLegacyManifest);
             copy($file->getPathname(), $path . $resFileName);
         }
     }

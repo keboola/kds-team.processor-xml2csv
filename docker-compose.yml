@@ -6,7 +6,8 @@ services:
         - ./:/code
         - ./data:/data
     environment:
-      - KBC_DATADIR=./data    
+      - KBC_DATADIR=./data
+      - KBC_DATA_TYPE_SUPPORT=none
     mem_limit: 1024m
   test:
     build: .

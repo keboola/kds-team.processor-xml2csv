@@ -2,37 +2,30 @@
 
 namespace esnerda\XML2CsvProcessor;
 
+use Keboola\Component\Manifest\ManifestManager;
 use Keboola\Component\UserException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
 use esnerda\XML2CsvProcessor\XML2JsonConverter;
 
 class Processor
 {
     const FILE_NAME_COL_NAME = 'keboola_file_name_col';
-    /** @var  string */
-    private $jsonParser;
-    private $root_el;
 
-    /** @var  bool */
-    private $incremental;
-    private $add_row_nr;
-    private $forceArrayAttrs;
-    private $addFileName;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct($jsonParser, bool $add_row_nr, $forceArrayAttrs, bool $incremental, string $root_el, $addFileName, $ignoreOnFailure, $logger, $storeJson)
+    public function __construct(
+        private JsonToCSvParser $jsonParser,
+        private ManifestManager $manifestManager,
+        private bool $add_row_nr,
+        private array $forceArrayAttrs,
+        private bool $incremental,
+        private string $root_el,
+        private bool $addFileName,
+        private bool $ignoreOnFailure,
+        private LoggerInterface $logger,
+        private bool $storeJson,
+        private bool $usingLegacyManifest,
+    )
     {
-        $this->jsonParser = $jsonParser;
-        $this->add_row_nr = $add_row_nr;
-        $this->forceArrayAttrs = $forceArrayAttrs;
-        $this->incremental = $incremental;
-        $this->root_el = $root_el;
-        $this->addFileName = $addFileName;
-        $this->ignoreOnFailure = $ignoreOnFailure;
-        $this->logger = $logger;
-        $this->storeJson = $storeJson;
     }
 
     public function parseInput(string $datadir, string $type): self
@@ -65,7 +58,7 @@ class Processor
                 $json_result_txt = $xml_parser->xml2json($xml_string, $this->add_row_nr, $this->forceArrayAttrs, $this->ignoreOnFailure);
                 // check for err in case on ignore of failure
                 if ($this->ignoreOnFailure && substr($json_result_txt, 0, 3) == 'ERR') {
-                    $this->logger->warn("Failed to parse file: " . $file->getFileName() . ' ' . $json_result_txt);
+                    $this->logger->warning("Failed to parse file: " . $file->getFileName() . ' ' . $json_result_txt);
                     continue;
                 }
 
@@ -167,16 +160,15 @@ class Processor
             }
 
             $resFileName = $key . '.csv';
-            $manifest = [];
-            if (!is_null($bucketName)) {
-                $manifest['destination'] = "{$bucketName}.{$key}";
-            }
-            $manifest['incremental'] = is_null($file->getIncremental()) ? $incremental : $file->getIncremental();
+
+            $manifestNew = $this->manifestManager->getTableManifest($resFileName);
+            $manifestNew->setIncremental($file->isIncrementalSet() ? $file->getIncremental() : $incremental);
             if (!empty($file->getPrimaryKey())) {
-                $manifest['primary_key'] = $file->getPrimaryKey(true);
+                $manifestNew->setLegacyPrimaryKeys($file->getPrimaryKey(true));
             }
-            $this->logger->info("Writting reult file: " . $resFileName);
-            file_put_contents($path . $resFileName . '.manifest', json_encode($manifest));
+
+            $this->logger->info("Writing result file: " . $resFileName);
+            $this->manifestManager->writeTableManifest($resFileName, $manifestNew, $this->usingLegacyManifest);
             copy($file->getPathname(), $path . $resFileName);
         }
     }

@@ -1,0 +1,14 @@
+<?xml version='1.0' ?>
+<root_el xmlns="http://example.com/main_schema" xmlns:custom="http://example.com/custom_schema">
+    <orders>
+        <order>
+            <id>2</id>
+            <date>2018-07-02</date>
+            <custom:cust_name>Tom</custom:cust_name>
+            <order-item>
+                <price currency="GBP">100</price>
+                <item>Sun Screen</item>
+            </order-item>
+        </order>
+    </orders>
+</root_el>

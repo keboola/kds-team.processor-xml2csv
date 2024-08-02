@@ -8,7 +8,7 @@ use Keboola\Component\BaseComponent;
 
 class Component extends BaseComponent {
 
-    public function run(): void {
+    protected function run(): void {
         if ($this->getConfig()->getMappingRootName() != '') {
             $mappinig_root_name = $this->getConfig()->getMappingRootName();
         } else {

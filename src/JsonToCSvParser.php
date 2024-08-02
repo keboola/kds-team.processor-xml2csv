@@ -28,7 +28,7 @@ class JsonToCSvParser {
         $this->logger = $logger;
         $this->type = $type;
         if ($mapping) {
-            $this->parser = new Mapper($mapping, $type);
+            $this->parser = new Mapper($mapping, type: $type);
         } else {
             $this->parser = new Parser(new Analyzer($logger, new Structure(), true));
         }
@@ -52,7 +52,7 @@ class JsonToCSvParser {
     }
 
     private function getType($json_data) {
-        $type = key($json_data);
+        $type = key((array) $json_data);
         if (!is_string ($type)) {
             $type = 'root';
         }

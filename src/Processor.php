@@ -64,8 +64,6 @@ class Processor
                     emptyToObject: $this->emptyToObject,
                 );
 
-                var_dump($json_result_txt);
-
                 // check for err in case on ignore of failure
                 if ($this->ignoreOnFailure && substr($json_result_txt, 0, 3) == 'ERR') {
                     $this->logger->warning("Failed to parse file: " . $file->getFileName() . ' ' . $json_result_txt);
@@ -86,8 +84,6 @@ class Processor
                 $this->logger->info("Converting to CSV..");
                 $this->jsonParser->parse($json_result_root);
             } catch (\Throwable $e) {
-                var_dump($e->getFile());
-                var_dump($e->getLine());
                 throw new UserException("Failed to parse file: " . $file->getFileName() . ' ' . $e->getMessage(), 1, $e);
             }
 

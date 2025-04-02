@@ -1,11 +1,11 @@
 {
 	"parameters": {
 	"mapping" : {},
-		
+
 	"append_row_nr" : false,
 	"always_array" : [],
 	"incremental":false,
-	"ingore_on_failure": true,
+	"ignore_on_failure": true,
 	"root_node" : "",
 	"in_type" : "files"
 	},

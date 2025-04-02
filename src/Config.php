@@ -49,4 +49,8 @@ class Config extends BaseConfig {
         return $this->getValue(['parameters', 'mapping_custom_root_name']);
     }
 
+    public function getEmptyToObject(): bool
+    {
+        return $this->getValue(['parameters', 'empty_to_object']);
+    }
 }

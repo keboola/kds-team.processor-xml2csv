@@ -46,6 +46,9 @@ class ConfigDefinition extends BaseConfigDefinition {
                 ->scalarNode('store_json')
                 ->defaultValue(false)
                 ->end()
+                ->scalarNode('empty_to_object')
+                ->defaultValue(false)
+                ->end()
                 ->end()
         ;
         // @formatter:on

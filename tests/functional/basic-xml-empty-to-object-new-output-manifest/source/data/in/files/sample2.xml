@@ -1,0 +1,15 @@
+<?xml version='1.0' ?>
+<root_el>
+    <orders>
+        <order>
+            <id>2</id>
+            <date>2018-07-02</date>
+            <cust_name>Tom</cust_name>
+            <order-item>
+                <price currency="GBP">100</price>
+                <item>Sun Screen</item>
+            </order-item>
+            <order-item/>
+        </order>
+    </orders>
+</root_el>

@@ -6,8 +6,15 @@ class XML2JsonConverter
 {
     const KEY_ROW_NR = 'row_nr';
 
-    public function xml2json(string $xml_string, bool $addRowNr, $alwaysArray = [], bool $contOnFailure = false, $attributePrefix = 'xml_attr_', $txtContent = 'txt_content_')
-    {
+    public function xml2json(
+        string $xml_string,
+        bool $addRowNr,
+        $alwaysArray = [],
+        bool $contOnFailure = false,
+        $attributePrefix = 'xml_attr_',
+        $txtContent = 'txt_content_',
+        $emptyToObject = false,
+    ) {
         libxml_use_internal_errors(true);
         $xml = $this->simplexml_load_string_nons($xml_string);
         $errMsgs = '';
@@ -21,10 +28,13 @@ class XML2JsonConverter
             libxml_clear_errors();
         }
 
-        $settings = ['attributePrefix' => $attributePrefix,
+        $settings = [
+            'attributePrefix' => $attributePrefix,
             'textContent' => $txtContent,
             'alwaysArray' => $alwaysArray,
-            'addRowNumber' => $addRowNr];
+            'addRowNumber' => $addRowNr,
+            'emptyToObject' => $emptyToObject,
+        ];
 
         if ($contOnFailure && $errMsgs) {
             return $errMsgs;
@@ -55,9 +65,11 @@ class XML2JsonConverter
             'keySearch' => false, //optional search and replace on tag and attribute names
             'keyReplace' => false, //replace values for above search values (as passed to str_replace())
             'addRowNumber' => false,
+            'emptyToObject' => false,
         ];
 
         $options = array_merge($defaults, $options);
+
         $namespaces = $xml->getDocNamespaces();
         $namespaces[''] = null; //add base (empty) namespace
         //get attributes from all namespaces
@@ -131,9 +143,10 @@ class XML2JsonConverter
 
             //stick it all together
             $propertiesArray = !$options['autoText'] || $attributesArray || $tagsArray || ($plainText === '') ? array_merge($attributesArray, $tagsArray, $textContentArray) : $plainText;
+
             // set to empty string if empty
             if (is_array($propertiesArray) && count($propertiesArray) == 0) {
-                $propertiesArray = "";
+                $propertiesArray = $options['emptyToObject'] ? (object)[] : '';
             }
             //return node as array
             return array(
@@ -269,6 +282,6 @@ class XML2JsonConverter
         // Default flags I use
         if (empty($flags)) $flags = LIBXML_COMPACT | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_PARSEHUGE;
         // Now load and return (namespaceless)
-        return $xml = simplexml_load_string($xml, $sxclass, $flags);
+        return simplexml_load_string($xml, $sxclass, $flags);
     }
 }

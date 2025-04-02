@@ -32,7 +32,8 @@ class Component extends BaseComponent {
             $this->getConfig()->ignoreOnFailure(),
             $this->getLogger(),
             $this->getConfig()->storeJson(),
-            $this->getConfig()->getDataTypeSupport()->usingLegacyManifest()
+            $this->getConfig()->getDataTypeSupport()->usingLegacyManifest(),
+            $this->getConfig()->getEmptyToObject(),
         );
 
 

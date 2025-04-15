@@ -84,7 +84,11 @@ class Processor
                 $this->logger->info("Converting to CSV..");
                 $this->jsonParser->parse($json_result_root);
             } catch (\Throwable $e) {
-                throw new UserException("Failed to parse file: " . $file->getFileName() . ' ' . $e->getMessage(), 1, $e);
+                if ($this->ignoreOnFailure) {
+                    $this->logger->warning("Failed to parse file: " . $file->getFileName() . ' ' . $e->getMessage());
+                } else {
+                    throw new UserException("Failed to parse file: " . $file->getFileName() . ' ' . $e->getMessage(), 1, $e);
+                }
             }
 
 
@@ -162,7 +166,7 @@ class Processor
                 $bucketName = $sapiPrefix ? 'in.c-' . $bucketName : $bucketName;
             }
             if (!is_dir($path)) {
-                mkdir($path, null, true);
+                mkdir($path, 0777, true);
                 chown($path, fileowner($outdir));
                 chgrp($path, filegroup($outdir));
             }

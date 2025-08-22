@@ -26,7 +26,10 @@ class ConfigDefinition extends BaseConfigDefinition {
                 ->scalarNode('incremental')
                 ->defaultValue(false)
                 ->end()
-                ->scalarNode('ingore_on_failure')
+                ->scalarNode('ignore_on_failure')
+                ->defaultValue(false)
+                ->end()
+                ->scalarNode('ingore_on_failure') // keep for backward compatibility
                 ->defaultValue(false)
                 ->end()
                 ->scalarNode('add_file_name')

@@ -22,7 +22,8 @@ class Config extends BaseConfig {
     }
 
     public function ignoreOnFailure(): bool {
-        return $this->getValue(['parameters', 'ingore_on_failure']);
+    // keep the old param for backward compatibility
+    return ($this->getValue(['parameters', 'ignore_on_failure']) || $this->getValue(['parameters', 'ingore_on_failure']));
     }
 
     public function getRootNode(): string {

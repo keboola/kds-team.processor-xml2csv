@@ -41,10 +41,12 @@ All xml attributes are converted into an object attribute prefixed by `xml_attr_
 ```
 Gets converted to (important for mapping) 
 ```json
-"price": {
-		  "xml_attr_currency": "CZK",
-		  "txt_content_": "200"
-		 }
+{
+  "price": {
+    "xml_attr_currency": "CZK",
+    "txt_content_": "200"
+  }
+}
 ```
 
 
@@ -56,7 +58,7 @@ All CDATA values are included without the CDATA container as a textual value
 Gets converted to
 ```json
 {
-    "ITEM_ID": "256-362"
+  "ITEM_ID": "256-362"
 }
 ```
 
@@ -164,19 +166,19 @@ If processor is to process following two files:
 **configuration**:
 ```json
 {
-    "definition": {
-        "component": "kds-team.processor-xml2csv"
-    },
-    "parameters" : {
-	"mapping" : {},		
-	"append_row_nr" : true,
-	"always_array" : [],
-	"incremental":true,
-	"ignore_on_failure":false,
-	"root_node" : "",
+  "definition": {
+    "component": "kds-team.processor-xml2csv"
+  },
+  "parameters": {
+    "mapping": {},
+    "append_row_nr": true,
+    "always_array": [],
+    "incremental": true,
+    "ignore_on_failure": false,
+    "root_node": "",
     "in_type": "files",
     "store_json": false
-	}
+  }
 }
 ```
 
@@ -240,65 +242,71 @@ Assuming XML file in `/in/files/`.
 #### Configuration
 ```json
 {
-    "definition": {
-        "component": "kds-team.processor-xml2csv"
-    },
-    "parameters" : {
-	"mapping" : {},		
-	"append_row_nr" : true,
-	"always_array" : ["order-item"],
-	"incremental":true,
-	"root_node" : "",
-	"in_type": "files",
-	"add_file_name": true,
+  "definition": {
+    "component": "kds-team.processor-xml2csv"
+  },
+  "parameters": {
+    "mapping": {},
+    "append_row_nr": true,
+    "always_array": [
+      "order-item"
+    ],
+    "incremental": true,
+    "root_node": "",
+    "in_type": "files",
+    "add_file_name": true,
     "store_json": false
-	}
+  }
 }
 ```
 #### Intermediate converted JSON #1
 ```json
 {
-	"root_el": {
-		"keboola_file_name_col" : "sample1.xml",
-		"orders": {
-			"order": [{
-					"id": "1",
-					"date": "2018-01-01",
-					"cust_name": "David",
-					"order-item": [{
-							"price": {
-								"xml_attr_currency": "CZK",
-								"txt_content_": "100"
-							},
-							"item": "Umbrella",
-							"row_nr": 1
-						}, {
-							"price": {
-								"xml_attr_currency": "CZK",
-								"txt_content_": "200"
-							},
-							"item": "Rain Coat",
-							"row_nr": 2
-						}
-					],
-					"row_nr": 1
-				}, {
-					"id": "2",
-					"date": "2018-07-02",
-					"cust_name": "Tom",
-					"order-item": {
-						"price": {
-							"xml_attr_currency": "GBP",
-							"txt_content_": "100"
-						},
-						"item": "Sun Screen",
-						"row_nr": 1
-					},
-					"row_nr": 2
-				}
-			]
-		}
-	}
+  "root_el": {
+    "keboola_file_name_col": "sample1.xml",
+    "orders": {
+      "order": [
+        {
+          "id": "1",
+          "date": "2018-01-01",
+          "cust_name": "David",
+          "order-item": [
+            {
+              "price": {
+                "xml_attr_currency": "CZK",
+                "txt_content_": "100"
+              },
+              "item": "Umbrella",
+              "row_nr": 1
+            },
+            {
+              "price": {
+                "xml_attr_currency": "CZK",
+                "txt_content_": "200"
+              },
+              "item": "Rain Coat",
+              "row_nr": 2
+            }
+          ],
+          "row_nr": 1
+        },
+        {
+          "id": "2",
+          "date": "2018-07-02",
+          "cust_name": "Tom",
+          "order-item": {
+            "price": {
+              "xml_attr_currency": "GBP",
+              "txt_content_": "100"
+            },
+            "item": "Sun Screen",
+            "row_nr": 1
+          },
+          "row_nr": 2
+        }
+      ]
+    }
+  }
 }
 
 ```
@@ -325,112 +333,118 @@ Assuming XML file in `/in/files/`.
 #### Configuration
 ```json
 {
-    "definition": {
-        "component": "kds-team.processor-xml2csv"
+  "definition": {
+    "component": "kds-team.processor-xml2csv"
+  },
+  "parameters": {
+    "mapping": {
+      "id": {
+        "type": "column",
+        "mapping": {
+          "destination": "order_id",
+          "primaryKey": true
+        }
+      },
+      "date": {
+        "type": "column",
+        "mapping": {
+          "destination": "order_date"
+        }
+      },
+      "cust_name": {
+        "type": "column",
+        "mapping": {
+          "destination": "customer_name"
+        }
+      },
+      "order-item": {
+        "type": "table",
+        "destination": "order-items",
+        "parentKey": {
+          "primaryKey": true,
+          "destination": "order_id"
+        },
+        "tableMapping": {
+          "row_nr": {
+            "type": "column",
+            "mapping": {
+              "destination": "row_nr",
+              "primaryKey": true
+            }
+          },
+          "price.xml_attr_currency": {
+            "type": "column",
+            "mapping": {
+              "destination": "currency"
+            }
+          },
+          "price.txt_content_": {
+            "type": "column",
+            "mapping": {
+              "destination": "price_value"
+            }
+          },
+          "item": {
+            "type": "column",
+            "mapping": {
+              "destination": "item_name"
+            }
+          }
+        }
+      }
     },
-    "parameters" : {
-	"mapping" : {
-			"id": {
-				"type": "column",
-				"mapping": {
-					"destination": "order_id",
-					"primaryKey": true
-				}
-			},
-			"date": {
-				"type": "column",
-				"mapping": {
-					"destination": "order_date"
-				}
-			},
-			"cust_name": {
-				"type": "column",
-				"mapping": {
-					"destination": "customer_name"
-				}
-			},
-			"order-item": {
-				"type": "table",
-				"destination": "order-items",
-				"parentKey": {
-					"primaryKey": true,
-					"destination": "order_id"
-				},
-				"tableMapping": {
-					"row_nr": {
-						"type": "column",
-						"mapping": {
-							"destination": "row_nr",
-
-							"primaryKey": true
-						}
-					},
-					"price.xml_attr_currency": {
-						"type": "column",
-						"mapping": {
-							"destination": "currency"
-						}
-					},
-					"price.txt_content_": {
-						"type": "column",
-						"mapping": {
-							"destination": "price_value"
-						}
-					},
-					"item": {
-						"type": "column",
-						"mapping": {
-							"destination": "item_name"
-						}
-					}
-				}
-			}},		
-	"append_row_nr" : true,
-	"always_array" : ["order-item"],
-	"incremental":true,
-	"root_node" : "root_el.orders.order",
+    "append_row_nr": true,
+    "always_array": [
+      "order-item"
+    ],
+    "incremental": true,
+    "root_node": "root_el.orders.order",
     "in_type": "files"
-	}
+  }
 }
 ```
 
 #### Intermediate converted JSON #1
 ```json
-[{
-		"id": "1",
-		"date": "2018-01-01",
-		"cust_name": "David",
-		"order-item": [{
-				"price": {
-					"xml_attr_currency": "CZK",
-					"txt_content_": "100"
-				},
-				"item": "Umbrella",
-				"row_nr": 1
-			}, {
-				"price": {
-					"xml_attr_currency": "CZK",
-					"txt_content_": "200"
-				},
-				"item": "Rain Coat",
-				"row_nr": 2
-			}
-		],
-		"row_nr": 1
-	}, {
-		"id": "2",
-		"date": "2018-07-02",
-		"cust_name": "Tom",
-		"order-item": {
-			"price": {
-				"xml_attr_currency": "GBP",
-				"txt_content_": "100"
-			},
-			"item": "Sun Screen",
-			"row_nr": 1
-		},
-		"row_nr": 2
-	}
+[
+  {
+    "id": "1",
+    "date": "2018-01-01",
+    "cust_name": "David",
+    "order-item": [
+      {
+        "price": {
+          "xml_attr_currency": "CZK",
+          "txt_content_": "100"
+        },
+        "item": "Umbrella",
+        "row_nr": 1
+      },
+      {
+        "price": {
+          "xml_attr_currency": "CZK",
+          "txt_content_": "200"
+        },
+        "item": "Rain Coat",
+        "row_nr": 2
+      }
+    ],
+    "row_nr": 1
+  },
+  {
+    "id": "2",
+    "date": "2018-07-02",
+    "cust_name": "Tom",
+    "order-item": {
+      "price": {
+        "xml_attr_currency": "GBP",
+        "txt_content_": "100"
+      },
+      "item": "Sun Screen",
+      "row_nr": 1
+    },
+    "row_nr": 2
+  }
 ]
 ```
 

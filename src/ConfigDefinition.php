@@ -27,7 +27,7 @@ class ConfigDefinition extends BaseConfigDefinition {
                 ->defaultValue(false)
                 ->end()
                 ->scalarNode('ignore_on_failure')
-                ->defaultValue(false)
+                ->defaultValue(null)
                 ->end()
                 ->scalarNode('ingore_on_failure') // keep for backward compatibility
                 ->defaultValue(false)

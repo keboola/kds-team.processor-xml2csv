@@ -1,0 +1,1 @@
+{"phoneBook":{"users":{"csUser":[{"name":"John","wpc":{"txt_content_":"12345"}},{"name":"Jane","wpc":{"xml_attr_type":"mobile","txt_content_":"67890"}},{"name":"Bob","wpc":[{"txt_content_":"11111"},{"xml_attr_type":"work","txt_content_":"22222"}]}]}}}

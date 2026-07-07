@@ -1,3 +1,5 @@
-"price_xml_attr_currency","price_txt_content","item","JSON_parentId"
-"CZK","100","Umbrella","root_el.root_el.orders.order_0a522195d222a8a0dcdc268eadd79625"
-"CZK","200","Rain Coat","root_el.root_el.orders.order_0a522195d222a8a0dcdc268eadd79625"
+"price_xml_attr_currency","price_txt_content","item","txt_content","JSON_parentId"
+"CZK","100","Umbrella","","root_el.root_el.orders.order_0a522195d222a8a0dcdc268eadd79625"
+"CZK","200","Rain Coat","","root_el.root_el.orders.order_0a522195d222a8a0dcdc268eadd79625"
+"GBP","100","Sun Screen","","root_el.root_el.orders.order_be9e76fe503c45e42fce2066043e7a4c"
+"","","","","root_el.root_el.orders.order_be9e76fe503c45e42fce2066043e7a4c"

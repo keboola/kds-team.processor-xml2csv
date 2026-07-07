@@ -1,0 +1,11 @@
+{
+  "parameters": {
+    "mapping": {},
+    "append_row_nr": false,
+    "always_array": ["csUser"],
+    "incremental": false,
+    "root_node": "",
+    "in_type": "files",
+    "store_json": true
+  }
+}

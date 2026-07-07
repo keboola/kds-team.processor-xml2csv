@@ -1,0 +1,18 @@
+<?xml version='1.0' ?>
+<phoneBook>
+    <users>
+        <csUser>
+            <name>John</name>
+            <wpc>12345</wpc>
+        </csUser>
+        <csUser>
+            <name>Jane</name>
+            <wpc type="mobile">67890</wpc>
+        </csUser>
+        <csUser>
+            <name>Bob</name>
+            <wpc>11111</wpc>
+            <wpc type="work">22222</wpc>
+        </csUser>
+    </users>
+</phoneBook>

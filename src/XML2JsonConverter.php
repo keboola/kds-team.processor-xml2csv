@@ -42,7 +42,9 @@ class XML2JsonConverter
             throw new \InvalidArgumentException($errMsgs);
         }
 
-        return json_encode($this->xmlToArray($xml, $settings));
+        $result = $this->xmlToArray($xml, $settings);
+        $result = $this->normalizeStructureTypes($result, $settings['textContent']);
+        return json_encode($result);
 
     }
 
@@ -117,13 +119,20 @@ class XML2JsonConverter
                         $childProperties = $this->addRowNumber($childProperties, $childTagName, sizeof($tagsArray[$childTagName]) + 1);
                     }
                     $tagsArray[$childTagName][] = $childProperties;
+                    $tagsArray[$childTagName] = $this->normalizeMixedArrayTypes(
+                        $tagsArray[$childTagName],
+                        $options['textContent']
+                    );
                 } else {
                     //key exists so convert to integer indexed array with previous value in position 0
                     if ($options['addRowNumber']) { // add row, first element
                         $tagsArray[$childTagName] = $this->addRowNumber($tagsArray[$childTagName], $childTagName, 1);
                         $childProperties = $this->addRowNumber($childProperties, $childTagName, 2);
                     }
-                    $tagsArray[$childTagName] = array($tagsArray[$childTagName], $childProperties);
+                    $tagsArray[$childTagName] = $this->normalizeMixedArrayTypes(
+                        array($tagsArray[$childTagName], $childProperties),
+                        $options['textContent']
+                    );
                 }
                 /* if (!isset($tagsArray[$childTagName])) {
                   //only entry with this key
@@ -153,6 +162,112 @@ class XML2JsonConverter
                 $xml->getName() => $propertiesArray
             );
         }
+    }
+
+    /**
+     * Normalizes mixed scalar/object types within an array.
+     * When an array contains both scalar values and objects,
+     * scalars are wrapped in an object using the textContent key.
+     * This prevents "incompatible types" errors in downstream JSON parsers.
+     */
+    private function normalizeMixedArrayTypes(array $array, string $textContentKey): array
+    {
+        $hasScalar = false;
+        $hasObject = false;
+
+        foreach ($array as $item) {
+            if (is_array($item) || is_object($item)) {
+                $hasObject = true;
+            } else {
+                $hasScalar = true;
+            }
+            if ($hasScalar && $hasObject) {
+                break;
+            }
+        }
+
+        if ($hasScalar && $hasObject) {
+            foreach ($array as $k => $v) {
+                if (!is_array($v) && !is_object($v)) {
+                    $array[$k] = [$textContentKey => $v];
+                }
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * Recursively normalizes the JSON structure to ensure consistent types
+     * across elements within arrays. When a field has scalar values in some
+     * array elements and object values in others, scalars are wrapped in
+     * objects using the textContent key.
+     */
+    private function normalizeStructureTypes($data, string $textContentKey)
+    {
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        // Recurse into all values first
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $data[$k] = $this->normalizeStructureTypes($v, $textContentKey);
+            }
+        }
+
+        // Check if this is an integer-indexed array (list of records)
+        if (array_keys($data) !== range(0, count($data) - 1)) {
+            return $data;
+        }
+
+        // Collect field type info across all object elements in this array
+        $fieldTypes = [];
+        foreach ($data as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            // Skip integer-indexed sub-arrays (nested lists)
+            if (array_keys($item) === range(0, count($item) - 1)) {
+                continue;
+            }
+            foreach ($item as $field => $value) {
+                if (!isset($fieldTypes[$field])) {
+                    $fieldTypes[$field] = ['hasScalar' => false, 'hasObject' => false];
+                }
+                if (is_array($value) || is_object($value)) {
+                    $fieldTypes[$field]['hasObject'] = true;
+                } else {
+                    $fieldTypes[$field]['hasScalar'] = true;
+                }
+            }
+        }
+
+        // Find fields with mixed types
+        $mixedFields = [];
+        foreach ($fieldTypes as $field => $types) {
+            if ($types['hasScalar'] && $types['hasObject']) {
+                $mixedFields[] = $field;
+            }
+        }
+
+        if (empty($mixedFields)) {
+            return $data;
+        }
+
+        // Normalize: wrap scalar values of mixed-type fields in objects
+        foreach ($data as $k => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            foreach ($mixedFields as $field) {
+                if (isset($item[$field]) && !is_array($item[$field]) && !is_object($item[$field])) {
+                    $data[$k][$field] = [$textContentKey => $item[$field]];
+                }
+            }
+        }
+
+        return $data;
     }
 
     private function convertToArray($value, $parentName, $addRowNr)

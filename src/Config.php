@@ -59,4 +59,9 @@ class Config extends BaseConfig {
     {
         return $this->getValue(['parameters', 'empty_to_object']);
     }
+
+    public function getNormalizeMixedTypes(): bool
+    {
+        return (bool)$this->getValue(['parameters', 'normalize_mixed_types']);
+    }
 }

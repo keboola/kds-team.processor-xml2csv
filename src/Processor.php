@@ -25,6 +25,7 @@ class Processor
         private bool $storeJson,
         private bool $usingLegacyManifest,
         private bool $emptyToObject,
+        private bool $normalizeMixedTypes = false,
     )
     {
     }
@@ -62,6 +63,7 @@ class Processor
                     $this->forceArrayAttrs,
                     $this->ignoreOnFailure,
                     emptyToObject: $this->emptyToObject,
+                    normalizeMixedTypes: $this->normalizeMixedTypes,
                 );
 
                 // check for err in case on ignore of failure

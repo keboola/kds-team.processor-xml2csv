@@ -30,6 +30,7 @@ Converts XML files to JSON and then to CSV.
 - **mapping_custom_root_name**: (string) - optional parameter to use with mapping. It overrides the root table name.
 - **add_file_name** (bool) - default `false` - flag whether to add the source file name column to the root object. The resulting column name is `keboola_file_name_col`. **NOTE**: Note that when you specify `root_node` the new column is added there. Also when using mapping you need to specify the mapping also for the new column name.
 - **store_json** (bool) - default `false` - if set to `true`, stores intermediate `JSON` files in the `data/out/files` folder. This is useful when designing the `mapping`.
+- **normalize_mixed_types** (bool) - default `false` - opt-in. When `true`, a field that appears as a plain text value in one place and as an object/array (repeated tag or a tag carrying attributes) in another is reconciled by wrapping the scalar occurrences as `{ "txt_content_": <value> }`, so they can share a single sub-table. Without it such mixed content makes the downstream JSON parser fail with an `Unhandled nodeType change from "scalar" to "object"` error. Leave it `false` (the default) to keep existing output tables byte-identical; only turn it on for inputs that hit this error, as it adds a sub-table/columns for the affected field. See more in [behaviour section](##Behaviour).
 
 
 ## Behaviour
@@ -49,6 +50,30 @@ Gets converted to (important for mapping)
 }
 ```
 
+
+### Mixed scalar/object fields (`normalize_mixed_types`)
+The same tag can appear as a plain value in one record and as an object/array in another - for
+example when it is repeated, or when only some occurrences carry an attribute:
+```xml
+<person>
+    <wpc>111</wpc>
+    <wpc type="mobile">222</wpc>
+</person>
+```
+By default this is left as-is, which makes the downstream JSON parser fail with
+`Unhandled nodeType change from "scalar" to "object"`. Setting **normalize_mixed_types** to `true`
+wraps the scalar occurrences as `{ "txt_content_": "111" }` so all occurrences share one sub-table:
+```json
+{
+  "person": {
+    "wpc": [
+      { "txt_content_": "111" },
+      { "xml_attr_type": "mobile", "txt_content_": "222" }
+    ]
+  }
+}
+```
+This changes the output shape for the affected field, so it is opt-in and off by default.
 
 ### CDATA wrapper
 All CDATA values are included without the CDATA container as a textual value 

@@ -1,0 +1,1 @@
+Failed to parse file: sample1.xml Unhandled nodeType change from "scalar" to "object" in "people.[].people.person.[].wpc.[]"

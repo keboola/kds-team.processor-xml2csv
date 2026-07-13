@@ -80,7 +80,7 @@ class XML2JsonConverter
         }
 
         // Only plain integer-indexed lists can contain mismatched siblings.
-        if ($data === [] || array_keys($data) !== range(0, count($data) - 1)) {
+        if ($data === [] || !array_is_list($data)) {
             return $data;
         }
 
@@ -107,7 +107,7 @@ class XML2JsonConverter
         $mixedFields = [];
         $fieldTypes = [];
         foreach ($data as $item) {
-            if (!is_array($item) || array_keys($item) === range(0, count($item) - 1)) {
+            if (!is_array($item) || array_is_list($item)) {
                 continue; // not an associative record
             }
             foreach ($item as $field => $value) {

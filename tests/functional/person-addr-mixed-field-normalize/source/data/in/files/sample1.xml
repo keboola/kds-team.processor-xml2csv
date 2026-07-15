@@ -1,0 +1,13 @@
+<?xml version='1.0' ?>
+<people>
+    <person>
+        <id>1</id>
+        <name>Alice</name>
+        <addr>home</addr>
+    </person>
+    <person>
+        <id>2</id>
+        <name>Bob</name>
+        <addr type="office">work</addr>
+    </person>
+</people>

@@ -88,7 +88,7 @@ class XML2JsonConverter
         $hasScalar = false;
         $hasObject = false;
         foreach ($data as $item) {
-            if (is_array($item)) {
+            if ($this->isObjectLike($item)) {
                 $hasObject = true;
             } else {
                 $hasScalar = true;
@@ -96,7 +96,7 @@ class XML2JsonConverter
         }
         if ($hasScalar && $hasObject) {
             foreach ($data as $k => $v) {
-                if (!is_array($v)) {
+                if (!$this->isObjectLike($v)) {
                     $data[$k] = [$textContentKey => $v];
                 }
             }
@@ -111,7 +111,7 @@ class XML2JsonConverter
                 continue; // not an associative record
             }
             foreach ($item as $field => $value) {
-                $isObject = is_array($value);
+                $isObject = $this->isObjectLike($value);
                 if (!isset($fieldTypes[$field])) {
                     $fieldTypes[$field] = ['scalar' => false, 'object' => false];
                 }
@@ -129,7 +129,7 @@ class XML2JsonConverter
                     continue;
                 }
                 foreach ($mixedFields as $field) {
-                    if (array_key_exists($field, $item) && !is_array($item[$field])) {
+                    if (array_key_exists($field, $item) && !$this->isObjectLike($item[$field])) {
                         $data[$k][$field] = [$textContentKey => $item[$field]];
                     }
                 }
@@ -137,6 +137,18 @@ class XML2JsonConverter
         }
 
         return $data;
+    }
+
+    /**
+     * A value is "object-like" - i.e. json-parser treats it as a sub-table - when
+     * it is an array, or a stdClass. The latter is emitted for an empty node under
+     * empty_to_object (see xmlToArray()), so it must count as an object here too;
+     * otherwise a mixed list such as ["111", {}] would read as all-scalar and stay
+     * unreconciled, and json-parser would still hit the scalar->object change.
+     */
+    private function isObjectLike($value): bool
+    {
+        return is_array($value) || is_object($value);
     }
 
 

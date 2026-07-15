@@ -34,6 +34,7 @@ class Component extends BaseComponent {
             $this->getConfig()->storeJson(),
             $this->getConfig()->getDataTypeSupport()->usingLegacyManifest(),
             $this->getConfig()->getEmptyToObject(),
+            $this->getConfig()->getNormalizeMixedTypes(),
         );
 
 

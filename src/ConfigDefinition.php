@@ -52,6 +52,9 @@ class ConfigDefinition extends BaseConfigDefinition {
                 ->scalarNode('empty_to_object')
                 ->defaultValue(false)
                 ->end()
+                ->scalarNode('normalize_mixed_types')
+                ->defaultValue(false)
+                ->end()
                 ->end()
         ;
         // @formatter:on

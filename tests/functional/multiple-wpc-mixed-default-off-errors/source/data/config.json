@@ -1,0 +1,15 @@
+{
+	"parameters": {
+		"mapping": {},
+		"append_row_nr": false,
+		"always_array": [],
+		"incremental": false,
+		"root_node": "",
+		"in_type": "files"
+	},
+	"storage": {
+		"output": {
+			"data_type_support": "authoritative"
+		}
+	}
+}

@@ -14,6 +14,7 @@ class XML2JsonConverter
         $attributePrefix = 'xml_attr_',
         $txtContent = 'txt_content_',
         $emptyToObject = false,
+        bool $normalizeMixedTypes = false,
     ) {
         libxml_use_internal_errors(true);
         $xml = $this->simplexml_load_string_nons($xml_string);
@@ -42,8 +43,112 @@ class XML2JsonConverter
             throw new \InvalidArgumentException($errMsgs);
         }
 
-        return json_encode($this->xmlToArray($xml, $settings));
+        $result = $this->xmlToArray($xml, $settings);
 
+        // Opt-in: reconcile fields that are scalar in one place and object/array in
+        // another so downstream keboola/json-parser does not choke on mixed types.
+        // Default off keeps the output byte-identical to the untouched conversion.
+        if ($normalizeMixedTypes) {
+            $result = $this->normalizeMixedTypes($result, $txtContent);
+        }
+
+        return json_encode($result);
+
+    }
+
+    /**
+     * Recursively wraps scalar values as {textContentKey: value} wherever they
+     * would sit alongside object/array values that json-parser treats as a
+     * sub-table. Only integer-indexed lists can hold such mismatched siblings,
+     * so associative nodes are left untouched and only recursed into.
+     *
+     * Two shapes are reconciled in a single depth-first pass:
+     *  - a repeated tag whose instances mix scalars and objects
+     *    (e.g. [ "1", {"xml_attr_x":"y"} ]);
+     *  - a list of records where one field is scalar in some records and an
+     *    object/array in others.
+     */
+    private function normalizeMixedTypes($data, string $textContentKey)
+    {
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        // Depth-first: normalize children before inspecting this level.
+        foreach ($data as $k => $v) {
+            $data[$k] = $this->normalizeMixedTypes($v, $textContentKey);
+        }
+
+        // Only plain integer-indexed lists can contain mismatched siblings.
+        if ($data === [] || !array_is_list($data)) {
+            return $data;
+        }
+
+        // Case 1: the list itself mixes scalar and object/array elements.
+        $hasScalar = false;
+        $hasObject = false;
+        foreach ($data as $item) {
+            if ($this->isObjectLike($item)) {
+                $hasObject = true;
+            } else {
+                $hasScalar = true;
+            }
+        }
+        if ($hasScalar && $hasObject) {
+            foreach ($data as $k => $v) {
+                if (!$this->isObjectLike($v)) {
+                    $data[$k] = [$textContentKey => $v];
+                }
+            }
+            return $data;
+        }
+
+        // Case 2: list of records - a field is scalar in some, object/array in others.
+        $mixedFields = [];
+        $fieldTypes = [];
+        foreach ($data as $item) {
+            if (!is_array($item) || array_is_list($item)) {
+                continue; // not an associative record
+            }
+            foreach ($item as $field => $value) {
+                $isObject = $this->isObjectLike($value);
+                if (!isset($fieldTypes[$field])) {
+                    $fieldTypes[$field] = ['scalar' => false, 'object' => false];
+                }
+                $fieldTypes[$field][$isObject ? 'object' : 'scalar'] = true;
+            }
+        }
+        foreach ($fieldTypes as $field => $seen) {
+            if ($seen['scalar'] && $seen['object']) {
+                $mixedFields[] = $field;
+            }
+        }
+        if ($mixedFields) {
+            foreach ($data as $k => $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                foreach ($mixedFields as $field) {
+                    if (array_key_exists($field, $item) && !$this->isObjectLike($item[$field])) {
+                        $data[$k][$field] = [$textContentKey => $item[$field]];
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * A value is "object-like" - i.e. json-parser treats it as a sub-table - when
+     * it is an array, or a stdClass. The latter is emitted for an empty node under
+     * empty_to_object (see xmlToArray()), so it must count as an object here too;
+     * otherwise a mixed list such as ["111", {}] would read as all-scalar and stay
+     * unreconciled, and json-parser would still hit the scalar->object change.
+     */
+    private function isObjectLike($value): bool
+    {
+        return is_array($value) || is_object($value);
     }
 
 

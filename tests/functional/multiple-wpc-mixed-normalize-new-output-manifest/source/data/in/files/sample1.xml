@@ -1,0 +1,15 @@
+<?xml version='1.0' ?>
+<people>
+    <person>
+        <id>1</id>
+        <name>Alice</name>
+        <wpc>111</wpc>
+        <wpc type="mobile">222</wpc>
+    </person>
+    <person>
+        <id>2</id>
+        <name>Bob</name>
+        <wpc>333</wpc>
+        <wpc type="mobile">444</wpc>
+    </person>
+</people>

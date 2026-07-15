@@ -1,0 +1,3 @@
+"id","name","addr_txt_content","addr_xml_attr_type","JSON_parentId"
+"1","Alice","home","","people.people_d7e309bc0bac01a1e828b471b7bf262b"
+"2","Bob","work","office","people.people_d7e309bc0bac01a1e828b471b7bf262b"

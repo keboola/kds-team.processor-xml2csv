@@ -22,7 +22,7 @@ Converts XML files to JSON and then to CSV.
 
 - **in_type** (enum [`files`,`tables`]) -  specifies the input folder where to look for input data. e.g. when set to `table` the processor will look for inpu in `/in/tables/` folder.
 - **incremental** (bool) - flag whether the resulting tables should be uploaded incrementally. Makes most sense with mapping setup, since it allows you to specify primary keys.
-- **always_array** (array) - array of tag names that should be always converted to (JSON) array. This is helpful when you know that some of the tags can occur multiple times. For instance `<OrderItem>` tag could probably  have multiple occurrences. If the XML contains only single one it would be treated as an `Object`, including `["OrderItem"]` as a value  of this parameter will ensure it is always an Array. **ATTENTION** it is crutial to set this properly, especially when using no `mapping`! When setup improperly, it may produce unexpected results. See more in [behaviour section](##Behaviour).
+- **always_array** (array) - array of tag names that should be always converted to (JSON) array. This is helpful when you know that some of the tags can occur multiple times. For instance `<OrderItem>` tag could probably  have multiple occurrences. If the XML contains only single one it would be treated as an `Object`, including `["OrderItem"]` as a value  of this parameter will ensure it is always an Array. **ATTENTION** it is crutial to set this properly, especially when using no `mapping`! When setup improperly, it may produce unexpected results. See more in [behaviour section](#behaviour).
 - **append_row_nr** (bool) - Use `true` if you want to generate `row_nr` for each object in each Array. This is usefull when you need to setup primary key of child object that has only reference to parent id and not any unique value in parent or global context. Then you would set the PK as [`parent_key`,`row_nr`]
 - **ignore_on_failure** (bool) - Use `true` to skip malformed files. A warning message will be produced and the files skipped. DEFAULT: `false`
 - **root_node** (string) - `.` separated path to the root node of the resulting JSON - usually you only want to map the root array, not all the wrapper tags. For more info see examples below.
@@ -30,6 +30,7 @@ Converts XML files to JSON and then to CSV.
 - **mapping_custom_root_name**: (string) - optional parameter to use with mapping. It overrides the root table name.
 - **add_file_name** (bool) - default `false` - flag whether to add the source file name column to the root object. The resulting column name is `keboola_file_name_col`. **NOTE**: Note that when you specify `root_node` the new column is added there. Also when using mapping you need to specify the mapping also for the new column name.
 - **store_json** (bool) - default `false` - if set to `true`, stores intermediate `JSON` files in the `data/out/files` folder. This is useful when designing the `mapping`.
+- **normalize_mixed_types** (bool) - default `false` - opt-in. When `true`, a field that appears as a plain text value in one place and as an object/array (repeated tag or a tag carrying attributes) in another is reconciled by wrapping the scalar occurrences as `{ "txt_content_": <value> }`, so they can share a single sub-table. Without it such mixed content makes the downstream JSON parser fail with an `Unhandled nodeType change from "scalar" to "object"` error. Leave it `false` (the default) to keep existing output tables byte-identical; only turn it on for inputs that hit this error, as it adds a sub-table/columns for the affected field. See more in [behaviour section](#behaviour).
 
 
 ## Behaviour
@@ -49,6 +50,30 @@ Gets converted to (important for mapping)
 }
 ```
 
+
+### Mixed scalar/object fields (`normalize_mixed_types`)
+The same tag can appear as a plain value in one record and as an object/array in another - for
+example when it is repeated, or when only some occurrences carry an attribute:
+```xml
+<person>
+    <wpc>111</wpc>
+    <wpc type="mobile">222</wpc>
+</person>
+```
+By default this is left as-is, which makes the downstream JSON parser fail with
+`Unhandled nodeType change from "scalar" to "object"`. Setting **normalize_mixed_types** to `true`
+wraps the scalar occurrences as `{ "txt_content_": "111" }` so all occurrences share one sub-table:
+```json
+{
+  "person": {
+    "wpc": [
+      { "txt_content_": "111" },
+      { "xml_attr_type": "mobile", "txt_content_": "222" }
+    ]
+  }
+}
+```
+This changes the output shape for the affected field, so it is opt-in and off by default.
 
 ### CDATA wrapper
 All CDATA values are included without the CDATA container as a textual value 
